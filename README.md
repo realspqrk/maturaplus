@@ -39,11 +39,21 @@ Open the production build (`npm run preview`, or any static HTTPS host serving `
 
 ```sh
 npm test             # Vitest: domain core + component tests
-npm run test:e2e     # Playwright: user flows, offline mode, keyboard, axe accessibility (light+dark)
-npx playwright test screenshots   # writes review screenshots + print PDF into screenshots/
+npm run test:e2e     # Playwright, full suite in Chromium, Edge, Firefox, WebKit and mobile Chrome
+npx playwright test --project=chromium   # one browser only (fast)
+npx playwright show-report               # HTML report of the last run
+npx playwright test screenshots          # writes review screenshots + print PDF into screenshots/
 npm run lint         # oxlint
 ```
-First run of e2e needs a browser: `npx playwright install chromium`.
+First run of e2e needs browsers: `npx playwright install chromium firefox webkit` (Edge uses the installed Microsoft Edge).
+
+| E2E spec | Covers |
+|---|---|
+| `categories.spec.ts` | every category: all KPIs against hand-calculated values, examples, initial locked state |
+| `interactions.spec.ts` | unlock hints, calculated placeholders and overrides, conflicts, invalid values, input parsing/formatting, help, per-category state, deep links/back/forward, theme, keyboard-only use, mobile layout |
+| `export.spec.ts` | CSV content (BOM, quoting, zero vs. missing, conflicts), print layout, print dialog, A4 PDF |
+| `a11y.spec.ts` | axe WCAG 2.2 AA for every category, empty and filled, light and dark, plus error/conflict states |
+| `pwa.spec.ts` | manifest and icons, full offline use, upgrading from version A to B with two open windows (no data loss) |
 
 ## Structure
 

@@ -3,16 +3,23 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
-const pwa = vi.hoisted(() => ({ needRefresh: false, update: (() => {}) as (reload?: boolean) => void }))
+const pwa = vi.hoisted(() => ({
+  needRefresh: false,
+  update: (() => {}) as (reload?: boolean) => void,
+  options: {} as { onNeedReload?: () => void },
+  reload: (() => {}) as () => void,
+}))
 vi.mock('virtual:pwa-register/react', async () => {
   const { useState } = await import('react')
   return {
-    useRegisterSW: () => {
+    useRegisterSW: (options: typeof pwa.options) => {
+      pwa.options = options
       const refresh = useState(pwa.needRefresh)
       return { offlineReady: [false, () => {}], needRefresh: refresh, updateServiceWorker: pwa.update }
     },
   }
 })
+vi.mock('./ui/reload', () => ({ reloadPage: () => pwa.reload() }))
 
 const setup = () => {
   const user = userEvent.setup()
@@ -219,6 +226,32 @@ describe('App', () => {
     await user.type(field('Attributed revenue'), '200')
     await user.type(field('Contribution margin'), '50')
     expect(screen.getByText(/^at break-even/i)).toBeInTheDocument()
+  })
+
+  it('only the window that accepted the update reloads; other windows keep their inputs', async () => {
+    pwa.needRefresh = true
+    const reload = vi.fn()
+    pwa.reload = reload
+    pwa.update = () => {}
+    const user = setup()
+    await user.type(field('Media spend'), '1000')
+    // another window accepted the update and the new version took control of this one
+    act(() => pwa.options.onNeedReload?.())
+    expect(reload).not.toHaveBeenCalled()
+    expect(field('Media spend')).toHaveValue('1000') // still focused: raw text
+    expect(screen.getByText(/installed from another window/i)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /reload now/i }))
+    expect(reload).toHaveBeenCalledTimes(1)
+  })
+
+  it('reloads after the update was accepted in this window', async () => {
+    pwa.needRefresh = true
+    const reload = vi.fn()
+    pwa.reload = reload
+    pwa.update = () => pwa.options.onNeedReload?.()
+    const user = setup()
+    await user.click(screen.getByRole('button', { name: /reload and update/i }))
+    expect(reload).toHaveBeenCalledTimes(1)
   })
 })
 

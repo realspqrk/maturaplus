@@ -13,6 +13,9 @@
 
 :root {
   color-scheme: light;
+  /* keep focused fields clear of the sticky header and the mobile results bar */
+  scroll-padding-top: 6rem;
+  scroll-padding-bottom: 6rem;
 }
 :root.dark {
   color-scheme: dark;

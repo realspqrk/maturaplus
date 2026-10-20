@@ -21,3 +21,16 @@ export function UpdateBanner({ onUpdate, onDismiss }: { onUpdate: () => void; on
     </div>
   )
 }
+
+/** Shown in other windows after an update was accepted elsewhere: nothing is reloaded behind the user's back. */
+export function UpdatedElsewhereBanner({ onReload, onDismiss }: { onReload: () => void; onDismiss: () => void }) {
+  return (
+    <div role="status" className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm print:hidden dark:border-slate-700 dark:bg-slate-900">
+      <RefreshCw aria-hidden className="size-4 text-accent-600" />
+      <span className="flex-1">A new version was installed from another window. Reload when you're done; reloading clears your inputs.</span>
+      <button type="button" onClick={onDismiss} className="min-h-10 rounded-lg px-3 font-medium hover:bg-slate-100 dark:hover:bg-slate-800">Dismiss</button>
+      <button type="button" onClick={onReload} className="min-h-10 rounded-lg bg-accent-600 px-3 font-medium text-white hover:bg-accent-700">Reload now</button>
+    </div>
+  )
+}
+

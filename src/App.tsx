@@ -7,7 +7,7 @@ import { CategoryNav } from './ui/CategoryNav'
 import { InputPanel } from './ui/InputPanel'
 import { parseInputs, type RawInputs } from './ui/inputs'
 import { PrintSummary } from './ui/PrintSummary'
-import { OfflineBadge, UpdateBanner } from './ui/PwaStatus'
+import { OfflineBadge, UpdateBanner, UpdatedElsewhereBanner } from './ui/PwaStatus'
 import { ResultsPanel } from './ui/ResultsPanel'
 import { ToolbarButton } from './ui/ToolbarButton'
 import { usePwa } from './ui/usePwa'
@@ -103,6 +103,7 @@ export default function App() {
 
       <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pt-6 pb-24 sm:px-6 lg:pb-6 print:p-0">
         {pwa.needRefresh && <UpdateBanner onUpdate={pwa.update} onDismiss={pwa.dismiss} />}
+        {pwa.updatedElsewhere && <UpdatedElsewhereBanner onReload={pwa.reloadNow} onDismiss={pwa.dismiss} />}
         <CategoryNav active={category} lastOffline={lastOffline} onSelect={select} />
 
         <div
@@ -151,6 +152,7 @@ export default function App() {
 
       <footer className="mx-auto max-w-7xl px-4 pb-28 text-sm text-slate-600 sm:px-6 lg:pb-10 print:hidden dark:text-slate-400">
         Runs entirely in your browser and works offline. Nothing is stored or sent anywhere, so your inputs are cleared when you reload.
+        <span className="ml-1 whitespace-nowrap">Version {__APP_VERSION__}</span>
       </footer>
 
       {/* on small screens results sit below the form: keep them one tap away */}
