@@ -195,6 +195,31 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: /reload and update/i }))
     expect(update).toHaveBeenCalledWith(true)
   })
+
+  it('returns to Online when history goes back to the bare URL', async () => {
+    const user = setup()
+    await user.click(screen.getByRole('tab', { name: /^tv/i }))
+    act(() => {
+      window.location.hash = ''
+      window.dispatchEvent(new HashChangeEvent('hashchange'))
+    })
+    expect(screen.getByRole('tab', { name: /online/i })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('mobile "View results" moves focus to the results', async () => {
+    const user = setup()
+    Element.prototype.scrollIntoView = vi.fn()
+    await user.click(screen.getByRole('link', { name: /view results/i }))
+    expect(screen.getByRole('region', { name: 'Results' })).toHaveFocus()
+  })
+
+  it('labels an exact break-even as such', async () => {
+    const user = setup()
+    await user.type(field('Media spend'), '100')
+    await user.type(field('Attributed revenue'), '200')
+    await user.type(field('Contribution margin'), '50')
+    expect(screen.getByText(/^at break-even/i)).toBeInTheDocument()
+  })
 })
 
 function cleanupAndRender() {

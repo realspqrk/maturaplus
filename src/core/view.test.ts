@@ -93,3 +93,10 @@ describe('toCsv diagnostics', () => {
     expect(csv).toMatch(/Warnings,.*Net reach can't exceed 100%/)
   })
 })
+
+describe('conflict wording', () => {
+  it('describes the direction of the formula that was actually evaluated', () => {
+    const view = buildView(online, { spend: 100, impressions: 0, cpm: 5 })
+    expect(view.conflicts[0]).toBe('Media spend is €100.00, but CPM × Impressions ÷ 1000 gives €0.00.')
+  })
+})

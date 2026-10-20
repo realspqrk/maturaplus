@@ -1,7 +1,8 @@
-import { ChevronRight, CircleAlert, Download, Lock, Plus, Printer, TrendingDown, TrendingUp, TriangleAlert } from 'lucide-react'
+import { ChevronRight, CircleAlert, Equal, Download, Lock, Plus, Printer, TrendingDown, TrendingUp, TriangleAlert } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { labelFor, variables, type Category } from '../core/catalog'
 import { formatValue } from '../core/format'
+import { approxEqual } from '../core/solver'
 import { renderFormula, type CategoryView, type KpiView } from '../core/view'
 import { ToolbarButton } from './ToolbarButton'
 
@@ -15,7 +16,7 @@ interface Props {
 export function ResultsPanel({ category, view, onUnlock, onExportCsv }: Props) {
   const invalid = Object.entries(view.invalid)
   return (
-    <section id="results" aria-labelledby="results-title" className="flex scroll-mt-24 flex-col gap-5">
+    <section id="results" tabIndex={-1} aria-labelledby="results-title" className="flex scroll-mt-24 flex-col gap-5 outline-none">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 id="results-title" className="text-lg font-semibold">Results</h2>
@@ -75,21 +76,26 @@ function Verdict({ view }: { view: CategoryView }) {
   const roas = view.kpis.roas
   const be = view.kpis.breakEvenRoas
   if (roas?.value === undefined || be?.value === undefined || roas.state === 'conflict' || be.state === 'conflict') return null
-  const above = roas.value >= be.value
-  const Icon = above ? TrendingUp : TrendingDown
+  const at = approxEqual(roas.value, be.value, 'ratio')
+  const above = !at && roas.value > be.value
+  const Icon = at ? Equal : above ? TrendingUp : TrendingDown
   return (
     <div
       className={`flex items-start gap-3 rounded-2xl border p-4 ${
-        above
+        at
+          ? 'border-slate-200 bg-slate-100 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100'
+          : above
           ? 'border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100'
           : 'border-red-200 bg-red-50 text-red-950 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100'
       }`}
     >
       <Icon aria-hidden className="mt-0.5 size-5 shrink-0" />
       <p className="text-sm">
-        <strong className="font-semibold">{above ? 'Above break-even' : 'Below break-even'}:</strong>{' '}
+        <strong className="font-semibold">{at ? 'At break-even' : above ? 'Above break-even' : 'Below break-even'}:</strong>{' '}
         ROAS {formatValue(roas.value, 'ratio')} vs. break-even {formatValue(be.value, 'ratio')}.{' '}
-        {above
+        {at
+          ? 'The contribution exactly covers the media spend.'
+          : above
           ? 'The campaign pays for itself at your margin.'
           : 'At your margin, the revenue does not cover the media spend.'}
       </p>

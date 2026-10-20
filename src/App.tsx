@@ -12,9 +12,10 @@ import { ResultsPanel } from './ui/ResultsPanel'
 import { ToolbarButton } from './ui/ToolbarButton'
 import { usePwa } from './ui/usePwa'
 
-/** Category from the URL hash, or undefined for anything else (e.g. in-page anchors). */
+/** Category from the URL hash ('' = Online), or undefined for anything else (e.g. in-page anchors). */
 const categoryFromHash = () => {
   const id = window.location.hash.replace(/^#\/?/, '')
+  if (!id) return 'online'
   return categories.some((c) => c.id === id) ? id : undefined
 }
 
@@ -157,7 +158,9 @@ export default function App() {
         href="#results"
         onClick={(e) => {
           e.preventDefault()
-          document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' })
+          const results = document.getElementById('results')
+          results?.scrollIntoView({ behavior: 'smooth' })
+          results?.focus({ preventScroll: true })
         }}
         className="fixed inset-x-4 bottom-4 z-30 flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white shadow-lg lg:hidden print:hidden dark:bg-accent-600"
       >

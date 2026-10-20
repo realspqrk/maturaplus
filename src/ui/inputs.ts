@@ -36,5 +36,8 @@ const grouped = new Intl.NumberFormat('en-IE', { maximumFractionDigits: 10 })
 /** Show a valid entered number with thousands separators; leave anything else as typed. */
 export function formatInput(raw: string): string {
   const n = parseNumber(raw)
-  return n === undefined ? raw : grouped.format(n)
+  if (n === undefined) return raw
+  const shown = grouped.format(n)
+  // never display a value that differs from what is calculated with (e.g. 1e-11 would show as 0)
+  return parseNumber(shown) === n ? shown : raw
 }

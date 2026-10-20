@@ -33,25 +33,27 @@ export function relation(
   return { output, inputs, compute, formula, equation }
 }
 
-/** out = num / den × scale, plus both inverses. */
+/** out = num / den × scale, plus both inverses (each with its own directed formula). */
 export function ratio(out: string, num: string, den: string, scale = 1): Relation[] {
-  const s = scale === 1 ? '' : ` × ${scale}`
-  const formula = `{${out}} = {${num}} ÷ {${den}}${s}`
+  const times = scale === 1 ? '' : ` × ${scale}`
+  const per = scale === 1 ? '' : ` ÷ ${scale}`
+  const equation = `{${out}} = {${num}} ÷ {${den}}${times}`
   return [
-    relation(out, [num, den], (n, d) => mapDef(div(n, d), (x) => x * scale), formula),
-    relation(num, [out, den], (o, d) => (o * d) / scale, formula),
-    relation(den, [num, out], (n, o) => mapDef(div(n, o), (x) => x * scale), formula),
+    relation(out, [num, den], (n, d) => mapDef(div(n, d), (x) => x * scale), equation, equation),
+    relation(num, [out, den], (o, d) => (o * d) / scale, `{${num}} = {${out}} × {${den}}${per}`, equation),
+    relation(den, [num, out], (n, o) => mapDef(div(n, o), (x) => x * scale), `{${den}} = {${num}} ÷ {${out}}${times}`, equation),
   ]
 }
 
-/** out = a × b ÷ divisor, plus both inverses. */
+/** out = a × b ÷ divisor, plus both inverses (each with its own directed formula). */
 export function product(out: string, a: string, b: string, divisor = 1): Relation[] {
-  const s = divisor === 1 ? '' : ` ÷ ${divisor}`
-  const formula = `{${out}} = {${a}} × {${b}}${s}`
+  const per = divisor === 1 ? '' : ` ÷ ${divisor}`
+  const times = divisor === 1 ? '' : ` × ${divisor}`
+  const equation = `{${out}} = {${a}} × {${b}}${per}`
   return [
-    relation(out, [a, b], (x, y) => (x * y) / divisor, formula),
-    relation(a, [out, b], (o, y) => mapDef(div(o, y), (x) => x * divisor), formula),
-    relation(b, [out, a], (o, x) => mapDef(div(o, x), (y) => y * divisor), formula),
+    relation(out, [a, b], (x, y) => (x * y) / divisor, equation, equation),
+    relation(a, [out, b], (o, y) => mapDef(div(o, y), (x) => x * divisor), `{${a}} = {${out}} ÷ {${b}}${times}`, equation),
+    relation(b, [out, a], (o, x) => mapDef(div(o, x), (y) => y * divisor), `{${b}} = {${out}} ÷ {${a}}${times}`, equation),
   ]
 }
 
