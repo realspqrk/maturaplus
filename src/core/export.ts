@@ -33,6 +33,7 @@ export function toCsv(category: Category, inputs: Record<string, number>): strin
     }
   }
   for (const c of view.conflicts) rows.push([category.label, 'Conflicts', c, undefined, '', 'conflict', ''])
+  for (const msg of Object.values(view.invalid)) rows.push([category.label, 'Warnings', msg, undefined, '', 'invalid', ''])
 
   return '﻿' + rows.map((r) => r.map(csvField).join(',')).join('\r\n') + '\r\n'
 }

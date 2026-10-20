@@ -64,11 +64,11 @@ export function CategoryNav({ active, lastOffline, onSelect }: Props) {
               onClick={() => select(i)}
               className={`flex min-h-12 items-center gap-2.5 rounded-xl px-3 py-2 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 ${
                 selected
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white'
+                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white dark:ring-1 dark:ring-accent-500/60'
                   : 'text-slate-600 hover:bg-white/60 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-900/50 dark:hover:text-white'
               }`}
             >
-              <Icon aria-hidden className={`size-5 shrink-0 ${selected ? 'text-accent-600 dark:text-accent-500' : ''}`} />
+              <Icon aria-hidden className={`size-5 shrink-0 ${selected ? 'text-accent-600 dark:text-accent-100' : ''}`} />
               <span className="flex flex-col leading-tight">
                 <span className="text-sm font-semibold">{t.label}</span>
                 <span className="text-xs text-slate-600 dark:text-slate-400">{t.hint}</span>

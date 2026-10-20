@@ -1,27 +1,35 @@
-import { CircleAlert, Lock, Plus, TriangleAlert } from 'lucide-react'
+import { ChevronRight, CircleAlert, Download, Lock, Plus, Printer, TrendingDown, TrendingUp, TriangleAlert } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { labelFor, variables, type Category } from '../core/catalog'
 import { formatValue } from '../core/format'
 import { renderFormula, type CategoryView, type KpiView } from '../core/view'
+import { ToolbarButton } from './ToolbarButton'
 
 interface Props {
   category: Category
   view: CategoryView
   onUnlock: (inputId: string) => void
+  onExportCsv: () => void
 }
 
-export function ResultsPanel({ category, view, onUnlock }: Props) {
+export function ResultsPanel({ category, view, onUnlock, onExportCsv }: Props) {
   const invalid = Object.entries(view.invalid)
   return (
-    <section aria-labelledby="results-title" className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
+    <section id="results" aria-labelledby="results-title" className="flex scroll-mt-24 flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 id="results-title" className="text-lg font-semibold">Results</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            {view.unlocked} of {view.total} KPIs available
-          </p>
+          <div className="mt-1 flex items-center gap-3">
+            <Progress value={view.unlocked} max={view.total} />
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {view.unlocked} of {view.total} KPIs available
+            </p>
+          </div>
         </div>
-        <Progress value={view.unlocked} max={view.total} />
+        <div className="flex flex-wrap gap-2 print:hidden">
+          <ToolbarButton icon={Download} onClick={onExportCsv}>Export CSV</ToolbarButton>
+          <ToolbarButton icon={Printer} onClick={() => window.print()}>Print / Save as PDF</ToolbarButton>
+        </div>
       </div>
       <LiveStatus view={view} />
 
@@ -46,10 +54,12 @@ export function ResultsPanel({ category, view, onUnlock }: Props) {
         </div>
       )}
 
+      <Verdict view={view} />
+
       {category.kpiGroups.map((g) => (
-        <div key={g.title}>
-          <h3 className="mb-2 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">{g.title}</h3>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div key={g.title} className="break-inside-avoid-page">
+          <h3 className="mb-2 text-xs font-semibold tracking-wider text-slate-600 uppercase break-after-avoid dark:text-slate-400">{g.title}</h3>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 print:grid-cols-3">
             {g.kpis.map((id) => (
               <KpiCard key={id} category={category} kpi={view.kpis[id]} view={view} onUnlock={onUnlock} />
             ))}
@@ -60,10 +70,37 @@ export function ResultsPanel({ category, view, onUnlock }: Props) {
   )
 }
 
+/** Puts ROAS in context: a ROAS only means profit when it beats 1 ÷ margin. */
+function Verdict({ view }: { view: CategoryView }) {
+  const roas = view.kpis.roas
+  const be = view.kpis.breakEvenRoas
+  if (roas?.value === undefined || be?.value === undefined || roas.state === 'conflict' || be.state === 'conflict') return null
+  const above = roas.value >= be.value
+  const Icon = above ? TrendingUp : TrendingDown
+  return (
+    <div
+      className={`flex items-start gap-3 rounded-2xl border p-4 ${
+        above
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100'
+          : 'border-red-200 bg-red-50 text-red-950 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100'
+      }`}
+    >
+      <Icon aria-hidden className="mt-0.5 size-5 shrink-0" />
+      <p className="text-sm">
+        <strong className="font-semibold">{above ? 'Above break-even' : 'Below break-even'}:</strong>{' '}
+        ROAS {formatValue(roas.value, 'ratio')} vs. break-even {formatValue(be.value, 'ratio')}.{' '}
+        {above
+          ? 'The campaign pays for itself at your margin.'
+          : 'At your margin, the revenue does not cover the media spend.'}
+      </p>
+    </div>
+  )
+}
+
 function Progress({ value, max }: { value: number; max: number }) {
   return (
-    <div aria-hidden className="h-2 w-32 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 print:hidden">
-      <div className="h-full rounded-full bg-accent-600 transition-all duration-300 motion-reduce:transition-none" style={{ width: `${(value / max) * 100}%` }} />
+    <div aria-hidden className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 print:hidden">
+      <div className="h-full rounded-full bg-accent-600 transition-[width] duration-200 motion-reduce:transition-none dark:bg-accent-500" style={{ width: `${(value / max) * 100}%` }} />
     </div>
   )
 }
@@ -71,11 +108,13 @@ function Progress({ value, max }: { value: number; max: number }) {
 /** Short, debounced announcement instead of re-reading every card on each keystroke. */
 function LiveStatus({ view }: { view: CategoryView }) {
   const [msg, setMsg] = useState('')
-  const text = `Results updated: ${view.unlocked} KPIs calculated${view.conflicts.length ? `, ${view.conflicts.length} conflict${view.conflicts.length > 1 ? 's' : ''}` : ''}.`
+  const n = view.conflicts.length
+  const text = `Results updated: ${view.unlocked} KPIs calculated${n ? `, ${n} conflict${n > 1 ? 's' : ''}` : ''}.`
   useEffect(() => {
-    const t = setTimeout(() => setMsg(text), 800)
+    // an identical summary after a value change must still mutate the region to be announced
+    const t = setTimeout(() => setMsg((m) => (m === text ? `${text} ` : text)), 800)
     return () => clearTimeout(t)
-  }, [text])
+  }, [view, text])
   return <p aria-live="polite" className="sr-only">{msg}</p>
 }
 
@@ -97,10 +136,10 @@ function KpiCard({ category, kpi, view, onUnlock }: {
 
   if (kpi.state === 'locked') {
     return (
-      <article aria-labelledby={titleId} className="flex flex-col gap-2 rounded-2xl border border-dashed border-slate-300 p-4 print:hidden dark:border-slate-700">
+      <article aria-labelledby={titleId} className="flex flex-col gap-1 rounded-2xl border border-dashed border-slate-300 px-4 py-3 print:hidden dark:border-slate-700">
         <div className="flex items-center justify-between gap-2">
-          <h4 id={titleId} className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</h4>
-          <Lock aria-hidden className="size-4 text-slate-400" />
+          <h4 id={titleId} className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</h4>
+          <Lock aria-hidden className="size-3.5 text-slate-400" />
         </div>
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Add{' '}
@@ -110,54 +149,56 @@ function KpiCard({ category, kpi, view, onUnlock }: {
               <button
                 type="button"
                 onClick={() => onUnlock(id)}
-                className="inline-flex items-center gap-0.5 rounded-md font-medium text-accent-700 underline decoration-accent-500/40 underline-offset-2 hover:decoration-accent-600 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-accent-100"
+                className="inline-flex items-center gap-0.5 rounded-md font-medium text-accent-700 underline decoration-accent-500/40 underline-offset-2 hover:decoration-accent-600 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-accent-100 dark:decoration-accent-100/50"
               >
                 <Plus aria-hidden className="size-3.5" />
                 {labelFor(category, id)}
               </button>
             </span>
-          ))}{' '}
-          to unlock
+          ))}
         </p>
-        <Explainer help={v.help} />
+        <Explainer summary="About this KPI" help={v.help} />
       </article>
     )
   }
 
   const badge = STATE_BADGE[kpi.state]
   const conflict = kpi.state === 'conflict'
+  const negative = kpi.value !== undefined && kpi.value < 0
   return (
     <article
       aria-labelledby={titleId}
-      className={`flex flex-col gap-1 rounded-2xl border bg-white p-4 shadow-xs break-inside-avoid dark:bg-slate-900 ${
+      className={`flex flex-col gap-1 rounded-2xl border bg-white px-4 py-3.5 shadow-xs break-inside-avoid dark:bg-slate-900 ${
         conflict ? 'border-amber-400 dark:border-amber-500/60' : 'border-slate-200 dark:border-slate-800'
       }`}
     >
       <div className="flex items-center justify-between gap-2">
         <h4 id={titleId} className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</h4>
-        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}>{badge.text}</span>
+        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}>{badge.text}</span>
       </div>
-      <p className={`text-2xl font-semibold tracking-tight tabular-nums ${kpi.value !== undefined && kpi.value < 0 ? 'text-red-700 dark:text-red-400' : ''}`}>
+      <p className={`text-2xl font-semibold tracking-tight tabular-nums ${negative ? 'text-red-700 dark:text-red-400' : ''}`}>
         {formatValue(kpi.value!, v.unit)}
+        {negative && <span className="ml-2 align-middle text-xs font-medium">loss</span>}
       </p>
-      {kpi.state === 'derived' && kpi.formula && (
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          from {kpi.from.map((id) => `${labelFor(category, id)} ${formatValue(view.solution.values[id].value, variables[id].unit)}`).join(', ')}
-        </p>
-      )}
-      <Explainer help={v.help} formula={kpi.formula && renderFormula(category, kpi.formula)} />
+      <Explainer
+        summary={kpi.formula ? "How it's calculated" : 'About this KPI'}
+        help={v.help}
+        formula={kpi.formula && renderFormula(category, kpi.formula)}
+        from={kpi.state !== 'entered' ? kpi.from.map((id) => `${labelFor(category, id)}: ${formatValue(view.solution.values[id].value, variables[id].unit)}`) : []}
+      />
     </article>
   )
 }
 
-function Explainer({ help, formula }: { help?: string; formula?: string }) {
+function Explainer({ summary, help, formula, from = [] }: { summary: string; help?: string; formula?: string; from?: string[] }) {
   return (
-    <details className="group mt-1 text-sm print:hidden">
-      <summary className="flex min-h-8 cursor-pointer list-none items-center gap-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-slate-400 dark:hover:text-slate-100 [&::-webkit-details-marker]:hidden">
-        <span className="transition-transform group-open:rotate-90">›</span> How it's calculated
+    <details className="group text-sm print:hidden">
+      <summary className="-mx-1 flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-md px-1 text-xs font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-accent-500 sm:min-h-8 dark:text-slate-400 dark:hover:text-slate-100 [&::-webkit-details-marker]:hidden">
+        <ChevronRight aria-hidden className="size-3.5 transition-transform group-open:rotate-90" /> {summary}
       </summary>
       <div className="mt-1 space-y-1.5 text-slate-600 dark:text-slate-300">
         {formula && <p className="rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono text-xs dark:bg-slate-800">{formula}</p>}
+        {from.length > 0 && <p className="text-xs">Using {from.join(' · ')}</p>}
         <p>{help}</p>
       </div>
     </details>

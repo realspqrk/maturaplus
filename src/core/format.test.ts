@@ -12,11 +12,14 @@ describe('parseNumber', () => {
     ['12.5%', 12.5],
     ['1e3', 1000],
     ['-3', -3],
+    ['€ 1,000', 1000],
+    ['-€50', -50],
+    ['50 %', 50],
   ])('parses %j as %d', (raw, expected) => {
     expect(parseNumber(raw)).toBe(expected)
   })
 
-  it.each(['', '   ', 'abc', '1.2.3', '1,2,3,4x', '--1', 'NaN', 'Infinity'])('rejects %j', (raw) => {
+  it.each(['', '   ', 'abc', '1.2.3', '1,2,3,4x', '--1', 'NaN', 'Infinity', '1%2', '1e%3', '€€5', '5€', '%5', '1 2%3'])('rejects %j', (raw) => {
     expect(parseNumber(raw)).toBeUndefined()
   })
 })

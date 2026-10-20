@@ -98,3 +98,19 @@ describe('solve', () => {
     expect(r.values.x).toBeUndefined()
   })
 })
+
+describe('solve: review regressions', () => {
+  it('detects a contradiction even when the forward formula divides by zero', () => {
+    const r = solve({ spend: 100, impressions: 0, cpm: 5 }, relations, vars)
+    expect(r.conflicts).toHaveLength(1)
+    expect(r.values.spend.status).toBe('conflict')
+  })
+
+  it('flags the operands of an impossible derived value and taints everything built on them', () => {
+    const rel = [...relations, ...ratio('cpp', 'spend', 'grp'), ...ratio('frequency', 'contacts', 'reach')]
+    const r = solve({ grp: 300, frequency: 2, spend: 1000 }, rel, { ...vars, cpp: v('cpp', 'currency'), contacts: v('contacts', 'count') })
+    expect(r.invalid.reach).toBeDefined()
+    expect(r.values.grp.status).toBe('conflict')
+    expect(r.values.cpp.status).toBe('conflict')
+  })
+})

@@ -48,6 +48,8 @@ export function solve(
 ): Solution {
   const values: Record<string, Resolved> = {}
   const invalid: Record<string, string> = {}
+  // operands that produced an impossible value (e.g. reach > 100 %) are mutually inconsistent
+  const badOperands = new Set<string>()
 
   // deterministic: iterate inputs in catalog order, not insertion order
   for (const id of Object.keys(inputs).sort()) {
@@ -65,6 +67,7 @@ export function solve(
       const err = variable && boundsError(variable, result)
       if (err) {
         invalid[rel.output] ??= err
+        rel.inputs.forEach((i) => badOperands.add(i))
         continue
       }
       delete invalid[rel.output]
@@ -81,15 +84,18 @@ export function solve(
     if (!out || !rel.inputs.every((i) => values[i])) continue
     // a value derived by this exact relation is trivially consistent with it
     if (out.source === 'derived' && out.formula === rel.formula && sameInputs(out.from, rel.inputs)) continue
-    checked.add(rel.equation)
     const expected = rel.compute(...rel.inputs.map((i) => values[i].value))
+    // e.g. division by zero: try another directed form of the same equation
     if (expected === undefined || !Number.isFinite(expected)) continue
+    checked.add(rel.equation)
     const unit = variables[rel.output]?.unit ?? 'number'
     if (approxEqual(expected, out.value, unit)) continue
     const participants = [rel.output, ...rel.inputs]
     conflicts.push({ formula: rel.formula, variables: participants, expected, actual: out.value, output: rel.output })
     for (const p of participants) values[p].status = 'conflict'
   }
+
+  for (const id of badOperands) if (values[id]) values[id].status = 'conflict'
 
   // taint values computed from conflicting ones (insertion order is topological)
   for (const r of Object.values(values)) {

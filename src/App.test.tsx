@@ -3,9 +3,16 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
-vi.mock('virtual:pwa-register/react', () => ({
-  useRegisterSW: () => ({ offlineReady: [false, vi.fn()], needRefresh: [false, vi.fn()], updateServiceWorker: vi.fn() }),
-}))
+const pwa = vi.hoisted(() => ({ needRefresh: false, update: (() => {}) as (reload?: boolean) => void }))
+vi.mock('virtual:pwa-register/react', async () => {
+  const { useState } = await import('react')
+  return {
+    useRegisterSW: () => {
+      const refresh = useState(pwa.needRefresh)
+      return { offlineReady: [false, () => {}], needRefresh: refresh, updateServiceWorker: pwa.update }
+    },
+  }
+})
 
 const setup = () => {
   const user = userEvent.setup()
@@ -17,6 +24,7 @@ const field = (name: string) => screen.getByRole('textbox', { name })
 
 beforeEach(() => {
   window.location.hash = ''
+  pwa.needRefresh = false
 })
 
 describe('App', () => {
@@ -78,7 +86,7 @@ describe('App', () => {
     await user.click(screen.getByRole('tab', { name: /^tv/i }))
     expect(field('Media spend')).toHaveValue('')
     await user.click(screen.getByRole('tab', { name: /online/i }))
-    expect(field('Media spend')).toHaveValue('1000')
+    expect(field('Media spend')).toHaveValue('1,000')
   })
 
   it('offers print, out-of-home and direct mail under Other offline', async () => {
@@ -92,8 +100,8 @@ describe('App', () => {
   it('fills an example and resets it', async () => {
     const user = setup()
     await user.click(screen.getByRole('button', { name: /try an example/i }))
-    expect(field('Media spend')).toHaveValue('10000')
-    expect(screen.getByText(/14 of 14 KPIs/)).toBeInTheDocument()
+    expect(field('Media spend')).toHaveValue('10,000')
+    expect(within(screen.getByRole('region', { name: 'Results' })).getByText(/14 of 14 KPIs/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /reset/i }))
     expect(field('Media spend')).toHaveValue('')
   })
@@ -117,4 +125,79 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /print \/ save as pdf/i }))
     expect(print).toHaveBeenCalled()
   })
+
+  it('formats entered numbers with separators when not editing', async () => {
+    const user = setup()
+    await user.type(field('Impressions'), '2000000')
+    expect(field('Impressions')).toHaveValue('2000000')
+    await user.tab()
+    expect(field('Impressions')).toHaveValue('2,000,000')
+    await user.click(field('Impressions'))
+    expect(field('Impressions')).toHaveValue('2000000')
+  })
+
+  it('explains conflicts next to the affected input', async () => {
+    const user = setup()
+    await user.click(screen.getByRole('button', { name: /known rates/i }))
+    await user.type(field('Media spend'), '1000')
+    await user.type(field('Impressions'), '100000')
+    await user.type(field('CPM'), '20')
+    expect(field('CPM')).toHaveAccessibleDescription(/doesn't match/i)
+  })
+
+  it('says whether ROAS beats break-even', async () => {
+    const user = setup()
+    await user.type(field('Media spend'), '1000')
+    await user.type(field('Attributed revenue'), '1500')
+    await user.type(field('Contribution margin'), '30')
+    expect(screen.getByText(/below break-even/i)).toBeInTheDocument()
+    await user.clear(field('Attributed revenue'))
+    await user.type(field('Attributed revenue'), '5000')
+    expect(screen.getByText(/above break-even/i)).toBeInTheDocument()
+  })
+
+  it('lists entered inputs (including collapsed ones) in the print summary', async () => {
+    const user = setup()
+    await user.click(screen.getByRole('button', { name: /more inputs/i }))
+    await user.type(field('Unique users reached'), '400000')
+    await user.click(screen.getByRole('button', { name: /fewer inputs/i }))
+    const table = screen.getByRole('table', { name: /your inputs/i })
+    expect(within(table).getByText('Unique users reached')).toBeInTheDocument()
+    expect(within(table).getByText('400,000')).toBeInTheDocument()
+  })
+
+  it('skip link focuses the calculator without changing the category', async () => {
+    window.location.hash = '#/tv'
+    const user = setup()
+    await user.click(screen.getByRole('link', { name: /skip to calculator/i }))
+    expect(screen.getByRole('tab', { name: /^tv/i })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tabpanel')).toHaveFocus()
+  })
+
+  it('remembers a deep-linked offline sub-category', async () => {
+    window.location.hash = '#/ooh'
+    const user = setup()
+    await user.click(screen.getByRole('tab', { name: /online/i }))
+    await user.click(screen.getByRole('tab', { name: /other offline/i }))
+    expect(screen.getByRole('radio', { name: /out-of-home/i })).toBeChecked()
+  })
+
+  it('applies an app update only when asked', async () => {
+    pwa.needRefresh = true
+    const update = vi.fn()
+    pwa.update = update
+    const user = setup()
+    expect(screen.getByText(/new version is available/i)).toBeInTheDocument()
+    expect(update).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: /later/i }))
+    expect(screen.queryByText(/new version is available/i)).not.toBeInTheDocument()
+    cleanupAndRender()
+    await userEvent.click(screen.getByRole('button', { name: /reload and update/i }))
+    expect(update).toHaveBeenCalledWith(true)
+  })
 })
+
+function cleanupAndRender() {
+  document.body.innerHTML = ''
+  render(<App />)
+}

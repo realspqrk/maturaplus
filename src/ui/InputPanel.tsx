@@ -1,8 +1,8 @@
-import { ChevronDown, CircleHelp } from 'lucide-react'
+import { ChevronDown, CircleHelp, TriangleAlert } from 'lucide-react'
 import { useId, useState } from 'react'
 import { labelFor, variables, type Category, type Section } from '../core/catalog'
 import type { Solution } from '../core/solver'
-import { formatPlain, type RawInputs } from './inputs'
+import { formatInput, formatPlain, type RawInputs } from './inputs'
 
 interface Props {
   category: Category
@@ -16,7 +16,7 @@ interface Props {
 
 export function InputPanel({ category, raw, errors, solution, expanded, onToggle, onChange }: Props) {
   return (
-    <section aria-labelledby="inputs-title" className="flex flex-col gap-4">
+    <section aria-labelledby="inputs-title" className="flex flex-col gap-4 print:hidden">
       <div>
         <h2 id="inputs-title" className="text-lg font-semibold">Your numbers</h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -27,6 +27,7 @@ export function InputPanel({ category, raw, errors, solution, expanded, onToggle
         <InputSection
           key={s.title}
           section={s}
+          moreLabel={s.more.map((id) => labelFor(category, id)).join(', ')}
           open={!!expanded[s.title]}
           onToggle={() => onToggle(s.title)}
           render={(id) => (
@@ -46,41 +47,53 @@ export function InputPanel({ category, raw, errors, solution, expanded, onToggle
   )
 }
 
-function InputSection({ section, open, onToggle, render }: {
+function InputSection({ section, moreLabel, open, onToggle, render }: {
   section: Section
+  moreLabel: string
   open: boolean
   onToggle: () => void
   render: (id: string) => React.ReactNode
 }) {
   const panelId = useId()
   const collapsibleOnly = section.primary.length === 0
-  const toggle = (
-    <button
-      type="button"
-      aria-expanded={open}
-      aria-controls={panelId}
-      onClick={onToggle}
-      className={
-        collapsibleOnly
-          ? 'flex w-full items-center justify-between gap-2 rounded-lg text-left font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-500'
-          : 'inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 -mx-2 text-sm font-medium text-accent-700 hover:bg-accent-50 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-accent-100 dark:hover:bg-slate-800'
-      }
-    >
-      <span>{collapsibleOnly ? section.title : `${open ? 'Fewer' : 'More'} inputs (${section.more.length})`}</span>
-      <ChevronDown aria-hidden className={`size-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
-    </button>
-  )
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5 dark:border-slate-800 dark:bg-slate-900">
-      {collapsibleOnly ? toggle : <h3 className="mb-3 font-semibold">{section.title}</h3>}
-      {section.description && (open || !collapsibleOnly) && (
-        <p className="mt-1 mb-3 text-sm text-slate-600 dark:text-slate-400">{section.description}</p>
+      {collapsibleOnly ? (
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={onToggle}
+          className="-m-2 flex w-[calc(100%+1rem)] items-start justify-between gap-2 rounded-xl p-2 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-accent-500 dark:hover:bg-slate-800/60"
+        >
+          <span>
+            <span className="block font-semibold">{section.title}</span>
+            {section.description && <span className="mt-0.5 block text-sm text-slate-600 dark:text-slate-400">{section.description}</span>}
+          </span>
+          <ChevronDown aria-hidden className={`mt-1 size-5 shrink-0 text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+      ) : (
+        <h3 className="mb-3 font-semibold">{section.title}</h3>
       )}
       {section.primary.length > 0 && <div className="grid gap-3 sm:grid-cols-2">{section.primary.map(render)}</div>}
       {section.more.length > 0 && (
         <>
-          {!collapsibleOnly && <div className="mt-3 print:hidden">{toggle}</div>}
+          {!collapsibleOnly && (
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={panelId}
+              onClick={onToggle}
+              className="mt-3 -mx-2 flex min-h-11 w-[calc(100%+1rem)] items-center justify-between gap-2 rounded-xl px-2 text-left text-sm font-medium text-accent-700 hover:bg-accent-50 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-accent-100 dark:hover:bg-slate-800/60"
+            >
+              <span>
+                {open ? 'Fewer inputs' : 'More inputs'}
+                <span className="font-normal text-slate-600 dark:text-slate-400">: {moreLabel}</span>
+              </span>
+              <ChevronDown aria-hidden className={`size-5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+          )}
           <div id={panelId} hidden={!open} className="mt-3">
             <div className="grid gap-3 sm:grid-cols-2">{section.more.map(render)}</div>
           </div>
@@ -99,48 +112,46 @@ function Field({ id, label, raw, error, solution, onChange }: {
   onChange: (text: string) => void
 }) {
   const [helpOpen, setHelpOpen] = useState(false)
+  const [focused, setFocused] = useState(false)
   const v = variables[id]
   const resolved = solution.values[id]
-  const derived = !raw.trim() && resolved?.source === 'derived' ? resolved : undefined
-  const conflict = resolved?.status === 'conflict' && !!raw.trim()
+  const entered = !!raw.trim()
+  const derived = !entered && resolved?.source === 'derived' ? resolved : undefined
+  const conflict = entered && resolved?.status === 'conflict'
   const inputId = `in-${id}`
   const helpId = `${inputId}-help`
-  const errorId = `${inputId}-error`
-  const describedBy = [error && errorId, helpOpen && helpId].filter(Boolean).join(' ') || undefined
+  const noteId = `${inputId}-note`
+  const describedBy = [(error || conflict) && noteId, helpOpen && helpId].filter(Boolean).join(' ') || undefined
   const prefix = v.unit === 'currency' ? '€' : undefined
   const suffix = v.unit === 'percent' ? '%' : v.unit === 'ratio' ? '×' : undefined
+  const shown = focused || error ? raw : formatInput(raw)
 
   return (
-    <div className={raw.trim() || derived ? '' : 'print:hidden'}>
+    <div>
       <div className="mb-1 flex items-center justify-between gap-2">
         <label htmlFor={inputId} className="text-sm font-medium text-slate-700 dark:text-slate-200">
           {label}
         </label>
-        <span className="flex items-center gap-1">
-          {derived && (
-            <span className="rounded-full bg-accent-50 px-2 py-0.5 text-[11px] font-medium text-accent-700 dark:bg-accent-500/15 dark:text-accent-100">
-              calculated
-            </span>
-          )}
-          <button
-            type="button"
-            aria-label={`About ${label}`}
-            aria-expanded={helpOpen}
-            aria-controls={helpId}
-            onClick={() => setHelpOpen((o) => !o)}
-            className="grid size-8 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-accent-500 print:hidden dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-          >
-            <CircleHelp aria-hidden className="size-4" />
-          </button>
-        </span>
+        <button
+          type="button"
+          aria-label={`About ${label}`}
+          aria-expanded={helpOpen}
+          aria-controls={helpId}
+          onClick={() => setHelpOpen((o) => !o)}
+          className="-my-1 grid size-8 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+        >
+          <CircleHelp aria-hidden className="size-4" />
+        </button>
       </div>
       <div
-        className={`flex items-center rounded-xl border bg-white transition focus-within:ring-2 dark:bg-slate-950 ${
+        className={`flex items-center rounded-xl border transition focus-within:ring-2 ${
           error
-            ? 'border-red-500 focus-within:ring-red-500/30'
+            ? 'border-red-500 bg-white focus-within:ring-red-500/30 dark:bg-slate-950'
             : conflict
-              ? 'border-amber-500 focus-within:ring-amber-500/30'
-              : 'border-slate-300 focus-within:border-accent-500 focus-within:ring-accent-500/25 dark:border-slate-700'
+              ? 'border-amber-500 bg-amber-50/60 focus-within:ring-amber-500/30 dark:bg-amber-500/5'
+              : derived
+                ? 'border-accent-100 bg-accent-50/60 focus-within:border-accent-500 focus-within:ring-accent-500/25 dark:border-accent-500/30 dark:bg-accent-500/10'
+                : 'border-slate-300 bg-white focus-within:border-accent-500 focus-within:ring-accent-500/25 dark:border-slate-700 dark:bg-slate-950'
         }`}
       >
         {prefix && <span aria-hidden className="pl-3 text-slate-500 dark:text-slate-400">{prefix}</span>}
@@ -150,20 +161,31 @@ function Field({ id, label, raw, error, solution, onChange }: {
           inputMode="decimal"
           autoComplete="off"
           spellCheck={false}
-          value={raw}
+          value={shown}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={derived ? `${formatPlain(derived.value, v.unit)} · calculated` : undefined}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={derived ? formatPlain(derived.value, v.unit) : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
-          className="min-h-11 w-full min-w-0 rounded-xl bg-transparent px-3 py-2 tabular-nums outline-none placeholder:text-accent-700/80 placeholder:italic dark:placeholder:text-accent-100/70"
+          className="min-h-11 w-full min-w-0 rounded-xl bg-transparent px-3 py-2 tabular-nums outline-none placeholder:text-accent-700 dark:placeholder:text-accent-100"
         />
+        {derived && (
+          <span className="mr-2 shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-accent-700 dark:bg-slate-900 dark:text-accent-100">
+            calculated
+          </span>
+        )}
         {suffix && <span aria-hidden className="pr-3 text-slate-500 dark:text-slate-400">{suffix}</span>}
       </div>
-      {error && (
-        <p id={errorId} className="mt-1 text-sm text-red-700 dark:text-red-400">
-          {error}
+      {error ? (
+        <p id={noteId} className="mt-1 text-sm text-red-700 dark:text-red-400">{error}</p>
+      ) : conflict ? (
+        <p id={noteId} className="mt-1 flex items-center gap-1 text-sm text-amber-800 dark:text-amber-200">
+          <TriangleAlert aria-hidden className="size-3.5 shrink-0" /> Doesn't match your other inputs. See Results.
         </p>
-      )}
+      ) : derived && focused ? (
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">Calculated. Type a value to override it.</p>
+      ) : null}
       <p id={helpId} hidden={!helpOpen} className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
         {v.help}
       </p>

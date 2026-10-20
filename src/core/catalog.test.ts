@@ -115,3 +115,17 @@ describe.each(categories.map((c) => [c.id, c] as const))('catalog integrity: %s'
     }
   })
 })
+
+describe('review regressions', () => {
+  it('TV: impossible reach does not leave alternative paths healthy', () => {
+    const r = run('tv', { universe: 1_000_000, grp: 300, frequency: 2, spend: 1_000 })
+    expect(r.invalid.reachPct).toBeDefined()
+    for (const id of ['contacts', 'cpp', 'contactCpm']) expect(r.values[id]?.status, id).toBe('conflict')
+  })
+  it('formula text shows the percentage-point conversion', () => {
+    const online = getCategory('online')
+    const formulas = online.relations.map((r) => r.formula)
+    expect(formulas).toContain('{contribution} = {revenue} × {margin} ÷ 100 − {spend}')
+    expect(formulas).toContain('{breakEvenRoas} = 100 ÷ {margin}')
+  })
+})

@@ -86,3 +86,10 @@ describe('csvField', async () => {
   ])('%j -> %j', (input, out) => expect(csvField(input)).toBe(out))
   it('does not alter negative numbers', () => expect(csvField(-50)).toBe('-50'))
 })
+
+describe('toCsv diagnostics', () => {
+  it('exports invalid-value warnings', () => {
+    const csv = toCsv(getCategory('tv'), { grp: 300, frequency: 2 })
+    expect(csv).toMatch(/Warnings,.*Net reach can't exceed 100%/)
+  })
+})

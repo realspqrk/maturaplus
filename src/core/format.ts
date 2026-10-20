@@ -4,7 +4,10 @@ const NUMBER_RE = /^-?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i
 
 /** Parse user input in English notation. Thousands separators, spaces, € and % are tolerated. */
 export function parseNumber(raw: string): number | undefined {
-  let s = raw.trim().replace(/[€\s%]/g, '')
+  // optional leading sign and €, optional trailing %; symbols anywhere else are invalid
+  const m = /^(-?)\s*€?\s*([^€%]*?)\s*%?$/.exec(raw.trim())
+  if (!m) return undefined
+  let s = (m[1] + m[2]).replace(/\s/g, '')
   if (/,/.test(s)) {
     // commas are only valid as thousands separators: 1,234 or 1,234,567.8
     if (!/^-?\d{1,3}(,\d{3})+(\.\d*)?$/.test(s)) return undefined

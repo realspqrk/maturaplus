@@ -12,7 +12,7 @@ const list: Variable[] = [
   v('contribution', 'Contribution after media', 'currency', 'Revenue × margin − media spend. What the campaign contributed after paying for the media. Can be negative.', {}),
   v('roas', 'ROAS', 'ratio', 'Return on ad spend = revenue ÷ media spend. A ROAS of 4× means €4 of revenue for every €1 spent. It ignores margin, so compare it with the break-even ROAS.'),
   v('roi', 'Marketing ROI', 'percent', 'Contribution after media ÷ media spend. 0% means break-even. Negative means the campaign lost money after margin.', {}),
-  v('breakEvenRoas', 'Break-even ROAS', 'ratio', '1 ÷ margin. The ROAS you need for the campaign to pay for itself at your margin.'),
+  v('breakEvenRoas', 'Break-even ROAS', 'ratio', '100 ÷ margin %. The ROAS you need for the campaign to pay for itself at your margin.'),
 
   // online
   v('impressions', 'Impressions', 'count', 'Number of times the ad was served (gross, not unique people).'),
@@ -74,9 +74,9 @@ export const variables: Record<string, Variable> = Object.fromEntries(list.map((
 const business: Relation[] = [
   ...ratio('roas', 'revenue', 'spend'),
   relation('contribution', ['revenue', 'margin', 'spend'], (r, m, s) => (r * m) / 100 - s,
-    '{contribution} = {revenue} × {margin} − {spend}'),
+    '{contribution} = {revenue} × {margin} ÷ 100 − {spend}'),
   ...ratio('roi', 'contribution', 'spend', 100),
-  relation('breakEvenRoas', ['margin'], (m) => (m > 0 ? 100 / m : undefined), '{breakEvenRoas} = 1 ÷ {margin}'),
+  relation('breakEvenRoas', ['margin'], (m) => (m > 0 ? 100 / m : undefined), '{breakEvenRoas} = 100 ÷ {margin}'),
 ]
 
 const businessKpis = ['roas', 'roi', 'contribution', 'breakEvenRoas']
@@ -203,7 +203,7 @@ export const categories: Category[] = [
     },
   },
   broadcast('tv', 'TV', 'Linear TV schedules measured in rating points', {
-    spend: 120_000, revenue: 300_000, margin: 40, universe: 5_000_000, reachPct: 45, frequency: 3.2, spots: 40,
+    spend: 120_000, revenue: 360_000, margin: 40, universe: 5_000_000, reachPct: 45, frequency: 3.2, spots: 40,
   }),
   broadcast('radio', 'Radio', 'Radio schedules measured in rating points', {
     spend: 30_000, revenue: 60_000, margin: 40, universe: 5_000_000, reachPct: 35, frequency: 6, spots: 120,

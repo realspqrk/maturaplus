@@ -30,3 +30,11 @@ export function parseInputs(raw: RawInputs): ParsedInputs {
 export function formatPlain(value: number, unit: Parameters<typeof formatValue>[1]): string {
   return formatValue(value, unit).replace(/[€%×]/g, '').trim()
 }
+
+const grouped = new Intl.NumberFormat('en-IE', { maximumFractionDigits: 10 })
+
+/** Show a valid entered number with thousands separators; leave anything else as typed. */
+export function formatInput(raw: string): string {
+  const n = parseNumber(raw)
+  return n === undefined ? raw : grouped.format(n)
+}
