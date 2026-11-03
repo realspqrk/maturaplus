@@ -1,4 +1,5 @@
-import { ArrowDown, Moon, RotateCcw, Sparkles, Sun } from 'lucide-react'
+import { ArrowDown, CircleHelp, RotateCcw, Sparkles } from 'lucide-react'
+import logo from './assets/logo.svg'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { categories, getCategory } from './core/catalog'
 import { toCsv } from './core/export'
@@ -7,6 +8,7 @@ import { CategoryNav } from './ui/CategoryNav'
 import { InputPanel } from './ui/InputPanel'
 import { parseInputs, type RawInputs } from './ui/inputs'
 import { PrintSummary } from './ui/PrintSummary'
+import { QuickStart } from './ui/QuickStart'
 import { OfflineBadge, UpdateBanner, UpdatedElsewhereBanner } from './ui/PwaStatus'
 import { ResultsPanel } from './ui/ResultsPanel'
 import { ToolbarButton } from './ui/ToolbarButton'
@@ -25,7 +27,9 @@ export default function App() {
   // scenarios live in memory only, one per category
   const [rawByCategory, setRawByCategory] = useState<Record<string, RawInputs>>({})
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-  const [today] = useState(() => new Date().toLocaleDateString('en-IE'))
+  // shown on every start: students who already know the app close it with one click
+  const [showGuide, setShowGuide] = useState(true)
+  const [today] = useState(() => new Date().toLocaleDateString('de-DE'))
   const panelRef = useRef<HTMLDivElement>(null)
   const pwa = usePwa()
 
@@ -54,6 +58,7 @@ export default function App() {
   }
   const setRaw = (next: RawInputs) => setRawByCategory((all) => ({ ...all, [categoryId]: next }))
   const sectionKey = (title: string) => `${categoryId}:${title}`
+  const loadExample = () => setRaw(Object.fromEntries(Object.entries(category.example).map(([k, v]) => [k, String(v)])))
 
   const unlock = (inputId: string) => {
     const section = category.sections.find((s) => s.more.includes(inputId))
@@ -86,24 +91,33 @@ export default function App() {
         }}
         className="sr-only-focusable fixed top-2 left-2 z-50 rounded-lg bg-accent-600 px-3 py-2 text-white"
       >
-        Skip to calculator
+        Zum Rechner springen
       </a>
-      <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-slate-50/85 backdrop-blur-md print:static print:border-0 print:bg-white dark:border-slate-800/80 dark:bg-slate-950/85">
+      <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-slate-50/85 backdrop-blur-md print:static print:border-0 print:bg-white">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
-          <img src="/favicon.svg" alt="" className="size-8" />
+          <img src={logo} alt="" className="size-8" />
           <div className="flex-1">
-            <h1 className="text-base leading-tight font-semibold sm:text-lg">Marketing KPI Calculator</h1>
-            <p className="hidden text-xs text-slate-600 sm:block print:hidden dark:text-slate-400">Online · TV · Radio · Print · OOH · Direct mail</p>
+            <h1 className="text-base leading-tight font-semibold sm:text-lg">Marketing-KPI-Rechner</h1>
+            <p className="hidden text-xs text-slate-600 sm:block print:hidden">Online · TV · Radio · Print · OOH · Mailing</p>
           </div>
           <span className="hidden text-sm text-slate-600 print:inline">{today}</span>
           <span className="print:hidden"><OfflineBadge ready={pwa.offlineReady} /></span>
-          <ThemeToggle />
+          {!showGuide && (
+            <button
+              type="button"
+              onClick={() => setShowGuide(true)}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-medium text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-accent-500 print:hidden"
+            >
+              <CircleHelp aria-hidden className="size-5" /> So funktioniert’s
+            </button>
+          )}
         </div>
       </header>
 
       <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pt-6 pb-24 sm:px-6 lg:pb-6 print:p-0">
         {pwa.needRefresh && <UpdateBanner onUpdate={pwa.update} onDismiss={pwa.dismiss} />}
         {pwa.updatedElsewhere && <UpdatedElsewhereBanner onReload={pwa.reloadNow} onDismiss={pwa.dismiss} />}
+        {showGuide && <QuickStart onExample={loadExample} onClose={() => setShowGuide(false)} />}
         <CategoryNav active={category} lastOffline={lastOffline} onSelect={select} />
 
         <div
@@ -117,14 +131,14 @@ export default function App() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight">{category.label}</h2>
-              <p className="text-slate-600 dark:text-slate-400">{category.tagline}</p>
+              <p className="text-slate-600">{category.tagline}</p>
             </div>
             <div className="flex flex-wrap gap-2 print:hidden">
-              <ToolbarButton icon={Sparkles} onClick={() => setRaw(Object.fromEntries(Object.entries(category.example).map(([k, v]) => [k, String(v)])))}>
-                Try an example
+              <ToolbarButton icon={Sparkles} variant="primary" onClick={loadExample}>
+                Beispiel laden
               </ToolbarButton>
               <ToolbarButton icon={RotateCcw} onClick={() => setRaw({})} disabled={Object.keys(raw).length === 0}>
-                Reset
+                Zurücksetzen
               </ToolbarButton>
             </div>
           </div>
@@ -150,8 +164,8 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="mx-auto max-w-7xl px-4 pb-28 text-sm text-slate-600 sm:px-6 lg:pb-10 print:hidden dark:text-slate-400">
-        Runs entirely in your browser and works offline. Nothing is stored or sent anywhere, so your inputs are cleared when you reload.
+      <footer className="mx-auto max-w-7xl px-4 pb-28 text-sm text-slate-600 sm:px-6 lg:pb-10 print:hidden">
+        Läuft komplett in deinem Browser und funktioniert offline. Es wird nichts gespeichert oder verschickt – beim Neuladen sind deine Eingaben weg.
         <span className="ml-1 whitespace-nowrap">Version {__APP_VERSION__}</span>
       </footer>
 
@@ -164,40 +178,16 @@ export default function App() {
           results?.scrollIntoView({ behavior: 'smooth' })
           results?.focus({ preventScroll: true })
         }}
-        className="fixed inset-x-4 bottom-4 z-30 flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white shadow-lg lg:hidden print:hidden dark:bg-accent-600"
+        className="fixed inset-x-4 bottom-4 z-30 flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white shadow-lg lg:hidden print:hidden"
       >
         <span>
-          {view.unlocked} of {view.total} KPIs available
-          {view.conflicts.length > 0 && <span className="ml-2 text-amber-300 dark:text-amber-200">· conflict</span>}
+          {view.unlocked} von {view.total} KPIs verfügbar
+          {view.conflicts.length > 0 && <span className="ml-2 text-amber-300">· Konflikt</span>}
         </span>
         <span className="flex items-center gap-1">
-          View results <ArrowDown aria-hidden className="size-4" />
+          Zu den Ergebnissen <ArrowDown aria-hidden className="size-4" />
         </span>
       </a>
     </div>
-  )
-}
-
-function ThemeToggle() {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
-  const toggle = () => {
-    const next = !dark
-    setDark(next)
-    document.documentElement.classList.toggle('dark', next)
-    try {
-      localStorage.setItem('theme', next ? 'dark' : 'light')
-    } catch {
-      // storage unavailable (private mode): theme just won't be remembered
-    }
-  }
-  return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className="grid size-11 place-items-center rounded-xl text-slate-600 hover:bg-slate-200/70 focus-visible:outline-2 focus-visible:outline-accent-500 print:hidden dark:text-slate-300 dark:hover:bg-slate-800"
-    >
-      {dark ? <Sun aria-hidden className="size-5" /> : <Moon aria-hidden className="size-5" />}
-    </button>
   )
 }

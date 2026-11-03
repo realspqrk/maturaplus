@@ -18,9 +18,9 @@ export function InputPanel({ category, raw, errors, solution, expanded, onToggle
   return (
     <section aria-labelledby="inputs-title" className="flex flex-col gap-4 print:hidden">
       <div>
-        <h2 id="inputs-title" className="text-lg font-semibold">Your numbers</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Enter what you know. Everything else that can be worked out appears automatically.
+        <h2 id="inputs-title" className="text-lg font-semibold">Deine Zahlen</h2>
+        <p className="text-sm text-slate-600">
+          Trag ein, was du weißt. Alles, was sich daraus berechnen lässt, erscheint automatisch.
         </p>
       </div>
       {category.sections.map((s) => (
@@ -58,18 +58,18 @@ function InputSection({ section, moreLabel, open, onToggle, render }: {
   const collapsibleOnly = section.primary.length === 0
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5">
       {collapsibleOnly ? (
         <button
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
           onClick={onToggle}
-          className="-m-2 flex w-[calc(100%+1rem)] items-start justify-between gap-2 rounded-xl p-2 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-accent-500 dark:hover:bg-slate-800/60"
+          className="-m-2 flex w-[calc(100%+1rem)] items-start justify-between gap-2 rounded-xl p-2 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-accent-500"
         >
           <span>
             <span className="block font-semibold">{section.title}</span>
-            {section.description && <span className="mt-0.5 block text-sm text-slate-600 dark:text-slate-400">{section.description}</span>}
+            {section.description && <span className="mt-0.5 block text-sm text-slate-600">{section.description}</span>}
           </span>
           <ChevronDown aria-hidden className={`mt-1 size-5 shrink-0 text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
@@ -85,11 +85,11 @@ function InputSection({ section, moreLabel, open, onToggle, render }: {
               aria-expanded={open}
               aria-controls={panelId}
               onClick={onToggle}
-              className="mt-3 -mx-2 flex min-h-11 w-[calc(100%+1rem)] items-center justify-between gap-2 rounded-xl px-2 text-left text-sm font-medium text-accent-700 hover:bg-accent-50 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-accent-100 dark:hover:bg-slate-800/60"
+              className="mt-3 -mx-2 flex min-h-11 w-[calc(100%+1rem)] items-center justify-between gap-2 rounded-xl px-2 text-left text-sm font-medium text-accent-700 hover:bg-accent-50 focus-visible:outline-2 focus-visible:outline-accent-500"
             >
               <span>
-                {open ? 'Fewer inputs' : 'More inputs'}
-                <span className="font-normal text-slate-600 dark:text-slate-400">: {moreLabel}</span>
+                {open ? 'Weniger Eingaben' : 'Mehr Eingaben'}
+                <span className="font-normal text-slate-600">: {moreLabel}</span>
               </span>
               <ChevronDown aria-hidden className={`size-5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
@@ -129,16 +129,16 @@ function Field({ id, label, raw, error, solution, onChange }: {
   return (
     <div>
       <div className="mb-1 flex items-center justify-between gap-2">
-        <label htmlFor={inputId} className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
           {label}
         </label>
         <button
           type="button"
-          aria-label={`About ${label}`}
+          aria-label={`Info zu ${label}`}
           aria-expanded={helpOpen}
           aria-controls={helpId}
           onClick={() => setHelpOpen((o) => !o)}
-          className="-my-1 grid size-8 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+          className="-my-1 grid size-8 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-accent-500"
         >
           <CircleHelp aria-hidden className="size-4" />
         </button>
@@ -146,15 +146,15 @@ function Field({ id, label, raw, error, solution, onChange }: {
       <div
         className={`flex items-center rounded-xl border transition focus-within:ring-2 ${
           error
-            ? 'border-red-500 bg-white focus-within:ring-red-500/30 dark:bg-slate-950'
+            ? 'border-red-500 bg-white focus-within:ring-red-500/30'
             : conflict
-              ? 'border-amber-500 bg-amber-50/60 focus-within:ring-amber-500/30 dark:bg-amber-500/5'
+              ? 'border-amber-500 bg-amber-50/60 focus-within:ring-amber-500/30'
               : derived
-                ? 'border-accent-100 bg-accent-50/60 focus-within:border-accent-500 focus-within:ring-accent-500/25 dark:border-accent-500/30 dark:bg-accent-500/10'
-                : 'border-slate-300 bg-white focus-within:border-accent-500 focus-within:ring-accent-500/25 dark:border-slate-700 dark:bg-slate-950'
+                ? 'border-accent-100 bg-accent-50/60 focus-within:border-accent-500 focus-within:ring-accent-500/25'
+                : 'border-slate-300 bg-white focus-within:border-accent-500 focus-within:ring-accent-500/25'
         }`}
       >
-        {prefix && <span aria-hidden className="pl-3 text-slate-500 dark:text-slate-400">{prefix}</span>}
+        {prefix && <span aria-hidden className="pl-3 text-slate-500">{prefix}</span>}
         <input
           id={inputId}
           type="text"
@@ -168,25 +168,25 @@ function Field({ id, label, raw, error, solution, onChange }: {
           placeholder={derived ? formatPlain(derived.value, v.unit) : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
-          className="min-h-11 w-full min-w-0 rounded-xl bg-transparent px-3 py-2 tabular-nums outline-none placeholder:text-accent-700 dark:placeholder:text-accent-100"
+          className="min-h-11 w-full min-w-0 rounded-xl bg-transparent px-3 py-2 tabular-nums outline-none placeholder:text-accent-700"
         />
         {derived && (
-          <span className="mr-2 shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-accent-700 dark:bg-slate-900 dark:text-accent-100">
-            calculated
+          <span className="mr-2 shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-accent-700">
+            berechnet
           </span>
         )}
-        {suffix && <span aria-hidden className="pr-3 text-slate-500 dark:text-slate-400">{suffix}</span>}
+        {suffix && <span aria-hidden className="pr-3 text-slate-500">{suffix}</span>}
       </div>
       {error ? (
-        <p id={noteId} className="mt-1 text-sm text-red-700 dark:text-red-400">{error}</p>
+        <p id={noteId} className="mt-1 text-sm text-red-700">{error}</p>
       ) : conflict ? (
-        <p id={noteId} className="mt-1 flex items-center gap-1 text-sm text-amber-800 dark:text-amber-200">
-          <TriangleAlert aria-hidden className="size-3.5 shrink-0" /> Doesn't match your other inputs. See Results.
+        <p id={noteId} className="mt-1 flex items-center gap-1 text-sm text-amber-800">
+          <TriangleAlert aria-hidden className="size-3.5 shrink-0" /> Passt nicht zu deinen anderen Eingaben. Siehe Ergebnisse.
         </p>
       ) : derived && focused ? (
-        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">Calculated. Type a value to override it.</p>
+        <p className="mt-1 text-xs text-slate-600">Berechnet. Tipp einen Wert ein, um ihn zu überschreiben.</p>
       ) : null}
-      <p id={helpId} hidden={!helpOpen} className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
+      <p id={helpId} hidden={!helpOpen} className="mt-1.5 text-sm text-slate-600">
         {v.help}
       </p>
     </div>

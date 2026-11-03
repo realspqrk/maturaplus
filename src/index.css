@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
   --font-sans: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --color-accent-50: oklch(0.97 0.02 277);
@@ -12,17 +10,15 @@
 }
 
 :root {
-  color-scheme: light;
+  /* light mode only, also when the OS is set to dark */
+  color-scheme: only light;
   /* keep focused fields clear of the sticky header and the mobile results bar */
   scroll-padding-top: 6rem;
   scroll-padding-bottom: 6rem;
 }
-:root.dark {
-  color-scheme: dark;
-}
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-slate-50 text-slate-900 antialiased;
   font-feature-settings: 'cv11', 'ss01';
 }
 

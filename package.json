@@ -1,11 +1,12 @@
 {
   "name": "marketing-kpi-calculator",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:app": "tsc -b && node scripts/build-app.mjs",
     "lint": "oxlint src",
     "preview": "vite preview",
     "test": "vitest run",

@@ -21,8 +21,10 @@ export function usePwa() {
     },
   })
   const controlled = typeof navigator !== 'undefined' && !!navigator.serviceWorker?.controller
+  // the one-file app opened from disk needs no service worker to work offline
+  const local = typeof location !== 'undefined' && location.protocol === 'file:'
   return {
-    offlineReady: offlineReady || controlled,
+    offlineReady: offlineReady || controlled || local,
     needRefresh,
     updatedElsewhere,
     dismiss: () => {

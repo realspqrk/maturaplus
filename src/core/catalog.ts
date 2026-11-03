@@ -5,68 +5,68 @@ const v = (id: string, label: string, unit: Variable['unit'], help: string, boun
 })
 
 const list: Variable[] = [
-  // business outcome
-  v('spend', 'Media spend', 'currency', 'What you paid for the media in this campaign (net, excluding VAT). Use the same cost basis for every KPI.'),
-  v('revenue', 'Attributed revenue', 'currency', 'Revenue attributed to this campaign for the same period and attribution model.'),
-  v('margin', 'Contribution margin', 'percent', 'Share of revenue left after the cost of goods and other variable costs, before marketing. Needed for profit and ROI.', { min: 0, max: 100 }),
-  v('contribution', 'Contribution after media', 'currency', 'Revenue × margin − media spend. What the campaign contributed after paying for the media. Can be negative.', {}),
-  v('roas', 'ROAS', 'ratio', 'Return on ad spend = revenue ÷ media spend. A ROAS of 4× means €4 of revenue for every €1 spent. It ignores margin, so compare it with the break-even ROAS.'),
-  v('roi', 'Marketing ROI', 'percent', 'Contribution after media ÷ media spend. 0% means break-even. Negative means the campaign lost money after margin.', {}),
-  v('breakEvenRoas', 'Break-even ROAS', 'ratio', '100 ÷ margin %. The ROAS you need for the campaign to pay for itself at your margin.'),
+  // Geschäftsergebnis
+  v('spend', 'Mediabudget', 'currency', 'Was du für die Medien in dieser Kampagne bezahlt hast (netto, ohne USt.). Verwende für alle KPIs dieselbe Kostenbasis.'),
+  v('revenue', 'Zugeordneter Umsatz', 'currency', 'Umsatz, der dieser Kampagne zugerechnet wird – für denselben Zeitraum und dasselbe Attributionsmodell.'),
+  v('margin', 'Deckungsbeitragsquote', 'percent', 'Anteil des Umsatzes, der nach Warenkosten und anderen variablen Kosten übrig bleibt – vor den Marketingkosten. Wird für Deckungsbeitrag und ROI benötigt.', { min: 0, max: 100 }),
+  v('contribution', 'Deckungsbeitrag nach Media', 'currency', 'Umsatz × Deckungsbeitragsquote − Mediabudget. Was die Kampagne nach Abzug der Mediakosten beigetragen hat. Kann negativ sein.', {}),
+  v('roas', 'ROAS', 'ratio', 'Return on Ad Spend = Umsatz ÷ Mediabudget. Ein ROAS von 4× bedeutet 4 € Umsatz pro ausgegebenem Euro. Die Marge bleibt dabei unberücksichtigt – vergleiche ihn daher mit dem Break-even-ROAS.'),
+  v('roi', 'Marketing-ROI', 'percent', 'Deckungsbeitrag nach Media ÷ Mediabudget. 0 % bedeutet Break-even. Negativ heißt: Die Kampagne hat nach Abzug der Kosten Geld verloren.', {}),
+  v('breakEvenRoas', 'Break-even-ROAS', 'ratio', '100 ÷ Deckungsbeitragsquote in %. Der ROAS, den die Kampagne bei deiner Marge mindestens braucht, um sich selbst zu bezahlen.'),
 
   // online
-  v('impressions', 'Impressions', 'count', 'Number of times the ad was served (gross, not unique people).'),
-  v('clicks', 'Clicks', 'count', 'Clicks on the ad.'),
-  v('conversions', 'Conversions', 'count', 'Completed target actions (e.g. purchases, sign-ups). Count them consistently for the same period and attribution model as the spend.'),
-  v('leads', 'Leads', 'count', 'Qualified leads generated (e.g. contact forms).'),
-  v('views', 'Video views', 'count', 'Qualified video views as defined by the platform (e.g. ≥ 30 s or complete view).'),
-  v('cpm', 'CPM', 'currency', 'Cost per mille = media spend ÷ impressions × 1,000. The price of 1,000 impressions.'),
-  v('cpc', 'CPC', 'currency', 'Cost per click = media spend ÷ clicks.'),
-  v('ctr', 'CTR', 'percent', 'Click-through rate = clicks ÷ impressions × 100.', { min: 0, max: 100 }),
-  v('cvr', 'Conversion rate', 'percent', 'Click-based conversion rate = conversions ÷ clicks × 100. Can exceed 100% if one click leads to several conversions.'),
-  v('cpa', 'CPA', 'currency', 'Cost per action = media spend ÷ conversions.'),
-  v('cpl', 'CPL', 'currency', 'Cost per lead = media spend ÷ leads.'),
-  v('cpv', 'CPV', 'currency', 'Cost per view = media spend ÷ qualified video views.'),
-  v('viewRate', 'View rate', 'percent', 'Qualified views ÷ video impressions × 100.', { min: 0, max: 100 }),
-  v('revenuePerConversion', 'Revenue per conversion', 'currency', 'Attributed revenue ÷ conversions. Equals average order value only if every conversion is an order.'),
+  v('impressions', 'Impressions', 'count', 'Wie oft die Anzeige ausgeliefert wurde (brutto, nicht einzelne Personen).'),
+  v('clicks', 'Klicks', 'count', 'Klicks auf die Anzeige.'),
+  v('conversions', 'Conversions', 'count', 'Abgeschlossene Zielaktionen (z. B. Käufe, Anmeldungen). Zähle sie für denselben Zeitraum und dasselbe Attributionsmodell wie das Budget.'),
+  v('leads', 'Leads', 'count', 'Gewonnene qualifizierte Leads (z. B. ausgefüllte Kontaktformulare).'),
+  v('views', 'Video-Views', 'count', 'Qualifizierte Videoaufrufe laut Definition der Plattform (z. B. ≥ 30 s oder vollständig angesehen).'),
+  v('cpm', 'CPM', 'currency', 'Cost per Mille (auf Deutsch TKP, Tausend-Kontakt-Preis) = Mediabudget ÷ Impressions × 1.000. Der Preis für 1.000 Impressions.'),
+  v('cpc', 'CPC', 'currency', 'Cost per Click = Mediabudget ÷ Klicks.'),
+  v('ctr', 'CTR', 'percent', 'Click-Through-Rate = Klicks ÷ Impressions × 100.', { min: 0, max: 100 }),
+  v('cvr', 'Conversion-Rate', 'percent', 'Klickbasierte Conversion-Rate = Conversions ÷ Klicks × 100. Kann über 100 % liegen, wenn ein Klick zu mehreren Conversions führt.'),
+  v('cpa', 'CPA', 'currency', 'Cost per Action = Mediabudget ÷ Conversions.'),
+  v('cpl', 'CPL', 'currency', 'Cost per Lead = Mediabudget ÷ Leads.'),
+  v('cpv', 'CPV', 'currency', 'Cost per View = Mediabudget ÷ qualifizierte Video-Views.'),
+  v('viewRate', 'View-Rate', 'percent', 'Qualifizierte Views ÷ Video-Impressions × 100.', { min: 0, max: 100 }),
+  v('revenuePerConversion', 'Umsatz pro Conversion', 'currency', 'Zugeordneter Umsatz ÷ Conversions. Entspricht nur dann dem durchschnittlichen Bestellwert, wenn jede Conversion eine Bestellung ist.'),
 
   // audience (broadcast, OOH, online reach)
-  v('universe', 'Audience universe', 'count', 'Size of the audience the ratings are measured against, in persons. Use the total TV/radio population to get GRPs, or your target group to get TRPs.'),
-  v('reachPct', 'Net reach', 'percent', 'Share of the universe reached at least once.', { min: 0, max: 100 }),
-  v('reachPersons', 'Unique reach', 'count', 'Number of different people reached at least once (de-duplicated).'),
-  v('frequency', 'Average frequency', 'number', 'Average number of contacts per person reached. Always ≥ 1.', { min: 1 }),
-  v('grp', 'Rating points (GRP/TRP)', 'points', 'Gross rating points = net reach % × average frequency, or the sum of all spot ratings. Measured against the universe you entered: TRPs if that is a target group.'),
-  v('contacts', 'Gross contacts', 'count', 'Total contacts (impacts), counting repeat exposures. Rating points ÷ 100 × universe.'),
-  v('cpp', 'Cost per point (CPP)', 'currency', 'Media spend ÷ rating points. The cost of reaching 1% of the universe once.'),
-  v('contactCpm', 'Cost per 1,000 contacts', 'currency', 'Media spend ÷ gross contacts × 1,000. Comparable with online CPM.'),
-  v('spots', 'Spots', 'count', 'Number of spots (airings) in the schedule.'),
-  v('costPerSpot', 'Cost per spot', 'currency', 'Media spend ÷ number of spots.'),
-  v('avgSpotRating', 'Average spot rating', 'points', 'Rating points ÷ spots. The average share of the universe one spot reaches.'),
+  v('universe', 'Grundgesamtheit', 'count', 'Größe des Publikums, auf das sich die Ratings beziehen, in Personen. Die gesamte TV-/Radiobevölkerung ergibt GRP, deine Zielgruppe ergibt TRP.'),
+  v('reachPct', 'Netto-Reichweite', 'percent', 'Anteil der Grundgesamtheit, der mindestens einmal erreicht wurde.', { min: 0, max: 100 }),
+  v('reachPersons', 'Erreichte Personen', 'count', 'Anzahl verschiedener Personen, die mindestens einmal erreicht wurden (ohne Doppelzählung).'),
+  v('frequency', 'Ø Kontaktfrequenz', 'number', 'Durchschnittliche Anzahl an Kontakten pro erreichter Person. Immer mindestens 1.', { min: 1 }),
+  v('grp', 'Rating Points (GRP/TRP)', 'points', 'Gross Rating Points = Netto-Reichweite in % × Ø Kontaktfrequenz oder die Summe aller Spot-Ratings. Bezogen auf die eingegebene Grundgesamtheit: TRP, wenn das eine Zielgruppe ist.'),
+  v('contacts', 'Bruttokontakte', 'count', 'Alle Kontakte inklusive Mehrfachkontakten. Rating Points ÷ 100 × Grundgesamtheit.'),
+  v('cpp', 'Cost per Point (CPP)', 'currency', 'Mediabudget ÷ Rating Points. Die Kosten, um 1 % der Grundgesamtheit einmal zu erreichen.'),
+  v('contactCpm', 'TKP (Kosten pro 1.000 Kontakte)', 'currency', 'Tausend-Kontakt-Preis = Mediabudget ÷ Bruttokontakte × 1.000. Vergleichbar mit dem Online-CPM.'),
+  v('spots', 'Spots', 'count', 'Anzahl der Spots (Ausstrahlungen) im Schaltplan.'),
+  v('costPerSpot', 'Kosten pro Spot', 'currency', 'Mediabudget ÷ Anzahl der Spots.'),
+  v('avgSpotRating', 'Ø Spot-Rating', 'points', 'Rating Points ÷ Spots. Der durchschnittliche Anteil der Grundgesamtheit, den ein Spot erreicht.'),
 
   // print
-  v('copies', 'Distributed copies', 'count', 'Total copies distributed across all insertions (circulation × insertions).'),
-  v('readersPerCopy', 'Readers per copy', 'number', 'Average readers per copy, from readership research.'),
-  v('insertions', 'Insertions', 'count', 'Number of ad placements.'),
-  v('circulationCpm', 'Cost per 1,000 copies', 'currency', 'Media spend ÷ distributed copies × 1,000.'),
-  v('costPerInsertion', 'Cost per insertion', 'currency', 'Media spend ÷ insertions.'),
+  v('copies', 'Verbreitete Auflage', 'count', 'Insgesamt verbreitete Exemplare über alle Schaltungen (Auflage × Schaltungen).'),
+  v('readersPerCopy', 'Leser pro Exemplar', 'number', 'Durchschnittliche Anzahl Leser pro Exemplar laut Leserschaftsforschung (z. B. Media-Analyse).'),
+  v('insertions', 'Schaltungen', 'count', 'Anzahl der geschalteten Anzeigen.'),
+  v('circulationCpm', 'Kosten pro 1.000 Exemplare', 'currency', 'Mediabudget ÷ verbreitete Auflage × 1.000.'),
+  v('costPerInsertion', 'Kosten pro Schaltung', 'currency', 'Mediabudget ÷ Schaltungen.'),
 
   // ooh
-  v('panels', 'Panels / sites', 'count', 'Number of billboard faces or screens booked.'),
-  v('weeks', 'Weeks', 'number', 'Campaign duration in weeks.'),
-  v('weeklyContacts', 'Weekly contacts', 'count', 'Gross contacts per week for the whole booked inventory (e.g. from audience measurement).'),
-  v('panelWeeks', 'Panel weeks', 'number', 'Panels × weeks.'),
-  v('costPerPanelWeek', 'Cost per panel per week', 'currency', 'Media spend ÷ (panels × weeks).'),
+  v('panels', 'Werbeflächen', 'count', 'Anzahl der gebuchten Plakatflächen oder Screens.'),
+  v('weeks', 'Wochen', 'number', 'Kampagnendauer in Wochen.'),
+  v('weeklyContacts', 'Kontakte pro Woche', 'count', 'Bruttokontakte pro Woche für alle gebuchten Flächen zusammen (z. B. aus der Reichweitenmessung).'),
+  v('panelWeeks', 'Flächenwochen', 'number', 'Werbeflächen × Wochen.'),
+  v('costPerPanelWeek', 'Kosten pro Fläche und Woche', 'currency', 'Mediabudget ÷ (Werbeflächen × Wochen).'),
 
   // direct mail
-  v('piecesSent', 'Pieces sent', 'count', 'Number of mail pieces sent.'),
-  v('responders', 'Responders', 'count', 'Unique recipients who responded (call, visit, coupon, web).'),
-  v('orders', 'Orders', 'count', 'Orders placed by responders.'),
-  v('responseRate', 'Response rate', 'percent', 'Responders ÷ pieces sent × 100.', { min: 0, max: 100 }),
-  v('costPerPiece', 'Cost per piece', 'currency', 'Campaign cost ÷ pieces sent.'),
-  v('costPerResponse', 'Cost per response', 'currency', 'Campaign cost ÷ responders.'),
-  v('orderRate', 'Responder-to-order rate', 'percent', 'Orders ÷ responders × 100.'),
-  v('costPerOrder', 'Cost per order', 'currency', 'Campaign cost ÷ orders.'),
-  v('revenuePerPiece', 'Revenue per piece', 'currency', 'Attributed revenue ÷ pieces sent.'),
+  v('piecesSent', 'Versendete Mailings', 'count', 'Anzahl der verschickten Aussendungen.'),
+  v('responders', 'Responder', 'count', 'Empfänger, die reagiert haben (Anruf, Besuch, Gutschein, Website), jeweils nur einmal gezählt.'),
+  v('orders', 'Bestellungen', 'count', 'Bestellungen der Responder.'),
+  v('responseRate', 'Responsequote', 'percent', 'Responder ÷ versendete Mailings × 100.', { min: 0, max: 100 }),
+  v('costPerPiece', 'Kosten pro Mailing', 'currency', 'Kampagnenkosten ÷ versendete Mailings.'),
+  v('costPerResponse', 'Kosten pro Response', 'currency', 'Kampagnenkosten ÷ Responder.'),
+  v('orderRate', 'Bestellquote', 'percent', 'Bestellungen ÷ Responder × 100.'),
+  v('costPerOrder', 'Kosten pro Bestellung', 'currency', 'Kampagnenkosten ÷ Bestellungen.'),
+  v('revenuePerPiece', 'Umsatz pro Mailing', 'currency', 'Zugeordneter Umsatz ÷ versendete Mailings.'),
 ]
 
 export const variables: Record<string, Variable> = Object.fromEntries(list.map((x) => [x.id, x]))
@@ -87,7 +87,7 @@ const businessHints: Record<string, string[][]> = {
   breakEvenRoas: [['margin']],
 }
 const budgetSection = (spendLabel = 'spend'): Section => ({
-  title: 'Budget & results', primary: [spendLabel, 'revenue', 'margin'], more: [],
+  title: 'Budget & Ergebnis', primary: [spendLabel, 'revenue', 'margin'], more: [],
 })
 
 export interface Section {
@@ -114,8 +114,8 @@ export interface Category {
 }
 
 const ratesSection = (ids: string[]): Section => ({
-  title: 'Known rates',
-  description: 'Already know a rate from your media plan? Enter it and the missing volumes are filled in.',
+  title: 'Bekannte Kennzahlen',
+  description: 'Du kennst eine Kennzahl schon aus dem Mediaplan? Trag sie ein, dann werden die fehlenden Mengen ergänzt.',
   primary: [],
   more: ids,
 })
@@ -135,13 +135,13 @@ const broadcast = (id: 'tv' | 'radio', label: string, tagline: string, example: 
   ],
   sections: [
     budgetSection(),
-    { title: 'Audience & schedule', primary: ['universe', 'reachPct', 'frequency'], more: ['grp', 'spots', 'contacts', 'reachPersons'] },
+    { title: 'Publikum & Schaltplan', primary: ['universe', 'reachPct', 'frequency'], more: ['grp', 'spots', 'contacts', 'reachPersons'] },
     ratesSection(['cpp', 'contactCpm']),
   ],
   kpiGroups: [
-    { title: 'Reach & weight', kpis: ['grp', 'reachPersons', 'contacts', 'avgSpotRating'] },
-    { title: 'Cost efficiency', kpis: ['cpp', 'contactCpm', 'costPerSpot'] },
-    { title: 'Business outcome', kpis: businessKpis },
+    { title: 'Reichweite & Kontakte', kpis: ['grp', 'reachPersons', 'contacts', 'avgSpotRating'] },
+    { title: 'Kosteneffizienz', kpis: ['cpp', 'contactCpm', 'costPerSpot'] },
+    { title: 'Geschäftsergebnis', kpis: businessKpis },
   ],
   hints: {
     grp: [['reachPct', 'frequency'], ['contacts', 'universe']],
@@ -159,7 +159,7 @@ const broadcast = (id: 'tv' | 'radio', label: string, tagline: string, example: 
 export const categories: Category[] = [
   {
     id: 'online', label: 'Online', group: 'online',
-    tagline: 'Display, social, search and video campaigns',
+    tagline: 'Display-, Social-, Search- und Video-Kampagnen',
     relations: [
       ...ratio('cpm', 'spend', 'impressions', 1000),
       ...ratio('cpc', 'spend', 'clicks'),
@@ -175,13 +175,13 @@ export const categories: Category[] = [
     ],
     sections: [
       budgetSection(),
-      { title: 'Delivery', primary: ['impressions', 'clicks', 'conversions'], more: ['leads', 'views', 'reachPersons'] },
+      { title: 'Auslieferung', primary: ['impressions', 'clicks', 'conversions'], more: ['leads', 'views', 'reachPersons'] },
       ratesSection(['cpm', 'cpc', 'ctr', 'cvr', 'cpa']),
     ],
     kpiGroups: [
-      { title: 'Cost efficiency', kpis: ['cpm', 'cpc', 'cpa', 'cpl', 'cpv'] },
+      { title: 'Kosteneffizienz', kpis: ['cpm', 'cpc', 'cpa', 'cpl', 'cpv'] },
       { title: 'Engagement', kpis: ['ctr', 'cvr', 'viewRate', 'frequency'] },
-      { title: 'Business outcome', kpis: [...businessKpis, 'revenuePerConversion'] },
+      { title: 'Geschäftsergebnis', kpis: [...businessKpis, 'revenuePerConversion'] },
     ],
     hints: {
       cpm: [['spend', 'impressions']],
@@ -196,21 +196,21 @@ export const categories: Category[] = [
       revenuePerConversion: [['revenue', 'conversions']],
       ...businessHints,
     },
-    labels: { reachPersons: 'Unique users reached' },
+    labels: { reachPersons: 'Unique User' },
     example: {
       spend: 10_000, revenue: 40_000, margin: 30, impressions: 2_000_000, clicks: 20_000, conversions: 400,
       leads: 500, views: 300_000, reachPersons: 400_000,
     },
   },
-  broadcast('tv', 'TV', 'Linear TV schedules measured in rating points', {
+  broadcast('tv', 'TV', 'Lineare TV-Schaltpläne, gemessen in Rating Points', {
     spend: 120_000, revenue: 360_000, margin: 40, universe: 5_000_000, reachPct: 45, frequency: 3.2, spots: 40,
   }),
-  broadcast('radio', 'Radio', 'Radio schedules measured in rating points', {
+  broadcast('radio', 'Radio', 'Radio-Schaltpläne, gemessen in Rating Points', {
     spend: 30_000, revenue: 60_000, margin: 40, universe: 5_000_000, reachPct: 35, frequency: 6, spots: 120,
   }),
   {
     id: 'print', label: 'Print', group: 'offline',
-    tagline: 'Newspapers and magazines',
+    tagline: 'Zeitungen und Zeitschriften',
     relations: [
       ...product('contacts', 'copies', 'readersPerCopy'),
       ...ratio('circulationCpm', 'spend', 'copies', 1000),
@@ -220,13 +220,13 @@ export const categories: Category[] = [
     ],
     sections: [
       budgetSection(),
-      { title: 'Circulation', primary: ['copies', 'readersPerCopy', 'insertions'], more: ['contacts'] },
+      { title: 'Auflage', primary: ['copies', 'readersPerCopy', 'insertions'], more: ['contacts'] },
       ratesSection(['circulationCpm', 'contactCpm']),
     ],
     kpiGroups: [
-      { title: 'Reach & weight', kpis: ['contacts'] },
-      { title: 'Cost efficiency', kpis: ['circulationCpm', 'contactCpm', 'costPerInsertion'] },
-      { title: 'Business outcome', kpis: businessKpis },
+      { title: 'Reichweite & Kontakte', kpis: ['contacts'] },
+      { title: 'Kosteneffizienz', kpis: ['circulationCpm', 'contactCpm', 'costPerInsertion'] },
+      { title: 'Geschäftsergebnis', kpis: businessKpis },
     ],
     hints: {
       contacts: [['copies', 'readersPerCopy']],
@@ -235,12 +235,12 @@ export const categories: Category[] = [
       costPerInsertion: [['spend', 'insertions']],
       ...businessHints,
     },
-    labels: { contacts: 'Reader contacts', contactCpm: 'Cost per 1,000 reader contacts' },
+    labels: { contacts: 'Leserkontakte', contactCpm: 'TKP (Kosten pro 1.000 Leserkontakte)' },
     example: { spend: 18_000, revenue: 45_000, margin: 35, copies: 240_000, readersPerCopy: 2.4, insertions: 2 },
   },
   {
-    id: 'ooh', label: 'Out-of-home', group: 'offline',
-    tagline: 'Billboards, posters and digital screens',
+    id: 'ooh', label: 'Out-of-Home', group: 'offline',
+    tagline: 'Plakate, Billboards und digitale Screens',
     relations: [
       ...product('contacts', 'weeklyContacts', 'weeks'),
       ...product('panelWeeks', 'panels', 'weeks'),
@@ -251,13 +251,13 @@ export const categories: Category[] = [
     ],
     sections: [
       budgetSection(),
-      { title: 'Inventory & audience', primary: ['panels', 'weeks', 'weeklyContacts'], more: ['contacts', 'reachPersons'] },
+      { title: 'Flächen & Publikum', primary: ['panels', 'weeks', 'weeklyContacts'], more: ['contacts', 'reachPersons'] },
       ratesSection(['contactCpm', 'costPerPanelWeek']),
     ],
     kpiGroups: [
-      { title: 'Reach & weight', kpis: ['contacts', 'frequency'] },
-      { title: 'Cost efficiency', kpis: ['contactCpm', 'costPerPanelWeek'] },
-      { title: 'Business outcome', kpis: businessKpis },
+      { title: 'Reichweite & Kontakte', kpis: ['contacts', 'frequency'] },
+      { title: 'Kosteneffizienz', kpis: ['contactCpm', 'costPerPanelWeek'] },
+      { title: 'Geschäftsergebnis', kpis: businessKpis },
     ],
     hints: {
       contacts: [['weeklyContacts', 'weeks']],
@@ -269,8 +269,8 @@ export const categories: Category[] = [
     example: { spend: 24_000, revenue: 50_000, margin: 35, panels: 80, weeks: 2, weeklyContacts: 1_500_000, reachPersons: 900_000 },
   },
   {
-    id: 'directMail', label: 'Direct mail', group: 'offline',
-    tagline: 'Addressed mailings and inserts',
+    id: 'directMail', label: 'Mailing', group: 'offline',
+    tagline: 'Adressierte Mailings und Beilagen',
     relations: [
       ...ratio('responseRate', 'responders', 'piecesSent', 100),
       ...ratio('costPerPiece', 'spend', 'piecesSent'),
@@ -282,13 +282,13 @@ export const categories: Category[] = [
     ],
     sections: [
       budgetSection(),
-      { title: 'Mailing', primary: ['piecesSent', 'responders', 'orders'], more: [] },
+      { title: 'Aussendung', primary: ['piecesSent', 'responders', 'orders'], more: [] },
       ratesSection(['responseRate', 'costPerPiece', 'orderRate']),
     ],
     kpiGroups: [
       { title: 'Response', kpis: ['responseRate', 'orderRate'] },
-      { title: 'Cost efficiency', kpis: ['costPerPiece', 'costPerResponse', 'costPerOrder'] },
-      { title: 'Business outcome', kpis: [...businessKpis, 'revenuePerPiece'] },
+      { title: 'Kosteneffizienz', kpis: ['costPerPiece', 'costPerResponse', 'costPerOrder'] },
+      { title: 'Geschäftsergebnis', kpis: [...businessKpis, 'revenuePerPiece'] },
     ],
     hints: {
       responseRate: [['responders', 'piecesSent']],
@@ -299,7 +299,7 @@ export const categories: Category[] = [
       revenuePerPiece: [['revenue', 'piecesSent']],
       ...businessHints,
     },
-    labels: { spend: 'Campaign cost' },
+    labels: { spend: 'Kampagnenkosten' },
     example: { spend: 16_000, revenue: 24_000, margin: 45, piecesSent: 20_000, responders: 500, orders: 120 },
   },
 ]

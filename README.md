@@ -1,75 +1,124 @@
-# Marketing KPI Calculator
+# Marketing-KPI-Rechner
 
-An offline-capable web app (PWA) for calculating marketing KPIs across channel categories:
+Ein einfacher Rechner für Marketing-Kennzahlen: **CPM, CPC, CTR, ROAS, ROI, GRP** und viele mehr.
+Gedacht zum Lernen und Üben, z. B. im Unterricht oder für die Matura.
+Läuft offline, braucht keine Installation und speichert nichts.
 
-| Category | KPIs |
+## Starten mit einem Klick
+
+1. Lade diesen Ordner herunter. Auf GitHub: **Code → Download ZIP**, danach die ZIP-Datei entpacken.
+2. Doppelklick auf
+   - **Windows:** `KPI-Rechner starten (Windows).cmd`
+   - **Mac:** `KPI-Rechner starten (Mac).command`
+
+Der Rechner öffnet sich in einem eigenen Fenster wie eine App, ohne Tabs und Adressleiste.
+
+> **Es geht auch ohne Startdatei:** Doppelklick auf `app/kpi-rechner.html` öffnet den Rechner im Browser.
+> Diese eine Datei enthält die ganze App. Du kannst sie auf einen USB-Stick kopieren oder per Mail verschicken.
+
+<details>
+<summary>Windows oder Mac zeigt eine Warnung?</summary>
+
+- **Windows** („Der Computer wurde durch Windows geschützt“): auf **Weitere Informationen → Trotzdem ausführen** klicken.
+  Das passiert bei heruntergeladenen Startdateien. Die Datei öffnet nur `app/kpi-rechner.html` in Edge oder Chrome.
+  Du kannst sie mit dem Editor ansehen.
+- **Mac** („kann nicht geöffnet werden“): Rechtsklick auf die Datei → **Öffnen** → **Öffnen**. Das ist nur beim ersten Mal nötig.
+
+</details>
+
+## So funktioniert’s
+
+1. **Kanal wählen:** Online, TV, Radio oder weitere Offline-Kanäle (Print, Out-of-Home, Mailing).
+2. **Bekannte Zahlen eintragen**, z. B. Mediabudget und Impressions. Oder **Beispiel laden** klicken.
+3. **Ergebnisse ablesen:** Alle KPIs, die sich berechnen lassen, erscheinen sofort.
+   Unter **So wird gerechnet** steht bei jeder KPI die Formel mit deinen Zahlen.
+
+Weitere Hilfen:
+- **Gesperrte KPIs** zeigen, welche Eingabe noch fehlt. Ein Klick darauf springt direkt zum passenden Feld.
+- **Rückwärts rechnen** geht auch: Mediabudget + CPM ergibt die Impressions.
+- **Widersprüchliche Zahlen** werden erkannt und erklärt.
+- **Export** als CSV (für Excel) oder **Drucken / Als PDF speichern**.
+
+| Kategorie | KPIs |
 |---|---|
-| **Online** | CPM, CPC, CPA, CPL, CPV, CTR, conversion rate, view rate, average frequency, revenue per conversion |
-| **TV / Radio** | Rating points (GRP/TRP), unique reach, gross contacts, average spot rating, CPP, cost per 1,000 contacts, cost per spot |
-| **Other offline: Print** | Reader contacts, cost per 1,000 copies, cost per 1,000 reader contacts, cost per insertion |
-| **Other offline: Out-of-home** | Gross contacts, average frequency, cost per 1,000 contacts, cost per panel per week |
-| **Other offline: Direct mail** | Response rate, responder-to-order rate, cost per piece/response/order, revenue per piece |
-| **Business outcome** (every category) | ROAS, marketing ROI, contribution after media, break-even ROAS |
+| **Online** | CPM, CPC, CPA, CPL, CPV, CTR, Conversion-Rate, View-Rate, Ø Kontaktfrequenz, Umsatz pro Conversion |
+| **TV / Radio** | Rating Points (GRP/TRP), erreichte Personen, Bruttokontakte, Ø Spot-Rating, CPP, TKP, Kosten pro Spot |
+| **Print** | Leserkontakte, Kosten pro 1.000 Exemplare, TKP, Kosten pro Schaltung |
+| **Out-of-Home** | Bruttokontakte, Ø Kontaktfrequenz, TKP, Kosten pro Fläche und Woche |
+| **Mailing** | Responsequote, Bestellquote, Kosten pro Mailing / Response / Bestellung, Umsatz pro Mailing |
+| **Geschäftsergebnis** (überall) | ROAS, Marketing-ROI, Deckungsbeitrag nach Media, Break-even-ROAS |
 
-**How it works:** pick a category and enter the numbers you know. Everything that can be derived appears live, including through inverse formulas (e.g. spend + CPM → impressions). Locked KPIs tell you which input unlocks them. Contradictory inputs are flagged, and results based on them are marked as conflicting. Every KPI explains its formula.
+**Gut zu wissen**
+- Zahlen im deutschen Format eingeben: `1.234,56`. Prozent als Zahl: `50` bedeutet 50 %.
+- Der ROI braucht eine Deckungsbeitragsquote. Der Rechner nimmt nie stillschweigend 100 % Marge an.
+- Rating Points beziehen sich auf die eingegebene Grundgesamtheit: Gesamtbevölkerung ergibt GRP, Zielgruppe ergibt TRP.
+- Nichts wird gespeichert oder verschickt. Beim Schließen oder Neuladen sind die Eingaben weg.
 
-**Conventions**
-- Percentages are entered as percentage points (50 = 50%).
-- Audience sizes are in persons.
-- ROI requires a contribution margin and never silently assumes a 100% margin.
-- Rating points are measured against the audience universe you enter: total population → GRP, target group → TRP.
+## Wie diese App entstanden ist
 
-Nothing is stored or sent anywhere, so inputs are cleared on reload. Export: **CSV** (opens in Excel, UTF-8) and **Print / Save as PDF**.
+Die App wurde komplett mit KI gebaut (Claude Code). In **[PROMPTS.md](PROMPTS.md)** stehen alle Prompts
+wortwörtlich. Damit kannst du das Ganze jederzeit selbst nachbauen.
 
-## Getting started
+---
 
-Requires Node.js 22+ (developed with Node 24).
+## Für Entwickler
+
+Benötigt Node.js 22+ (entwickelt mit Node 24). Stack: Vite, React 19, TypeScript, Tailwind CSS 4.
 
 ```sh
 npm install
-npm run dev          # http://localhost:5173
-npm run build        # production build incl. service worker → dist/
-npm run preview      # serve the production build at http://localhost:4173
+npm run dev          # Entwicklungsserver: http://localhost:5173
+npm run build:app    # baut die Ein-Datei-App app/kpi-rechner.html (wird mit eingecheckt)
+npm run build        # PWA-Build mit Service Worker → dist/ (für Webhosting)
+npm run preview      # PWA-Build lokal ansehen: http://localhost:4173
 ```
 
-### Install as an offline app
-Open the production build (`npm run preview`, or any static HTTPS host serving `dist/`) in Edge or Chrome. Once the header shows **Works offline**, use the browser's *Install app* icon in the address bar. The installed app starts without a network connection. Opening `dist/index.html` directly from disk (`file://`) is **not** supported. When a new version is deployed, a banner offers to reload. That's never automatic, because reloading clears your inputs.
+Nach jeder Änderung am Code `npm run build:app` ausführen und `app/kpi-rechner.html` mit committen,
+damit die Ein-Klick-Version aktuell bleibt.
 
-## Tests (TDD)
+**Als installierbare Web-App (PWA):** `dist/` auf einen HTTPS-Webserver legen, z. B. GitHub Pages.
+In Edge oder Chrome erscheint dann in der Adressleiste **App installieren**.
+Neue Versionen werden nur nach Bestätigung geladen, weil das Neuladen die Eingaben löscht.
+
+### Tests (testgetrieben entwickelt)
 
 ```sh
-npm test             # Vitest: domain core + component tests
-npm run test:e2e     # Playwright, full suite in Chromium, Edge, Firefox, WebKit and mobile Chrome
-npx playwright test --project=chromium   # one browser only (fast)
-npx playwright show-report               # HTML report of the last run
-npx playwright test screenshots          # writes review screenshots + print PDF into screenshots/
-npm run lint         # oxlint
+npm test                                   # Vitest: Rechenkern + Komponenten
+npm run test:e2e                           # Playwright: Chromium, Edge, Firefox, WebKit, Mobile
+npx playwright test --project=chromium     # nur ein Browser (schnell)
+npm run lint                               # oxlint
 ```
-First run of e2e needs browsers: `npx playwright install chromium firefox webkit` (Edge uses the installed Microsoft Edge).
+Beim ersten Mal Browser installieren: `npx playwright install chromium firefox webkit` (Edge nutzt das installierte Microsoft Edge).
 
-| E2E spec | Covers |
+| E2E-Spec | Prüft |
 |---|---|
-| `categories.spec.ts` | every category: all KPIs against hand-calculated values, examples, initial locked state |
-| `interactions.spec.ts` | unlock hints, calculated placeholders and overrides, conflicts, invalid values, input parsing/formatting, help, per-category state, deep links/back/forward, theme, keyboard-only use, mobile layout |
-| `export.spec.ts` | CSV content (BOM, quoting, zero vs. missing, conflicts), print layout, print dialog, A4 PDF |
-| `a11y.spec.ts` | axe WCAG 2.2 AA for every category, empty and filled, light and dark, plus error/conflict states |
-| `pwa.spec.ts` | manifest and icons, full offline use, upgrading from version A to B with two open windows (no data loss) |
+| `categories.spec.ts` | jede Kategorie: alle KPIs gegen von Hand gerechnete Werte, Beispiele, Startzustand |
+| `interactions.spec.ts` | Hinweise auf fehlende Eingaben, berechnete Werte, Konflikte, Eingabeformat, Hilfe, Anleitung, Deep Links, nur Light Mode, Tastaturbedienung, Mobile |
+| `export.spec.ts` | CSV-Inhalt (BOM, `;`, Dezimalkomma, Konflikte), Drucklayout, A4-PDF |
+| `a11y.spec.ts` | axe WCAG 2.2 AA für jede Kategorie, leer und ausgefüllt, inklusive Fehlerzuständen |
+| `pwa.spec.ts` | Manifest, Offline-Betrieb, Update von Version A auf B mit zwei offenen Fenstern |
+| `app-file.spec.ts` | die Ein-Datei-App direkt von der Festplatte (`file://`) |
 
-## Structure
+### Struktur
 
 ```
-src/core/      framework-free domain logic (100% of the maths lives here)
-  catalog.ts   variables, relations, categories, unlock hints, examples
-  solver.ts    forward propagation to a fixpoint + consistency checks
-  view.ts      KPI card states (entered / calculated / conflict / locked)
-  export.ts    CSV export
-src/ui/        React components
-e2e/           Playwright specs
-docs/PLAN.md   plan + review decisions
+app/kpi-rechner.html   die fertige Ein-Datei-App (gebaut, eingecheckt)
+KPI-Rechner starten…   Startdateien für Windows und Mac
+src/core/              Rechenkern ohne Framework (die gesamte Mathematik)
+  catalog.ts           Größen, Formeln, Kategorien, Hinweise, Beispiele (alle Texte)
+  solver.ts            Vorwärtsrechnen bis zum Fixpunkt + Widerspruchsprüfung
+  view.ts              Zustände der KPI-Karten
+  export.ts            CSV-Export
+  format.ts            deutsches Zahlenformat (Eingabe und Ausgabe)
+src/ui/                React-Komponenten
+scripts/build-app.mjs  packt den Build in eine einzige HTML-Datei
+e2e/                   Playwright-Tests
+docs/PLAN.md           ursprünglicher Plan + Review-Entscheidungen
 ```
 
-### Adding a KPI
-1. Add the variable (label, unit, help text, bounds) in `catalog.ts`.
-2. Add a relation with `ratio(...)` / `product(...)` (inverses are generated) to the category.
-3. Add it to a `kpiGroups` entry, and add an unlock hint.
-4. Write the failing test with a hand-calculated fixture in `catalog.test.ts` first. The integrity tests automatically check that its hints really unlock it and that the example derives it.
+### Eine KPI hinzufügen
+1. Die Größe (Bezeichnung, Einheit, Hilfetext, Grenzen) in `catalog.ts` anlegen.
+2. Eine Beziehung mit `ratio(...)` / `product(...)` zur Kategorie hinzufügen. Die Umkehrformeln entstehen automatisch.
+3. In einer `kpiGroups`-Gruppe eintragen und einen Hinweis (`hints`) ergänzen.
+4. Zuerst den fehlschlagenden Test mit einem von Hand gerechneten Beispiel in `catalog.test.ts` schreiben.
+   Die Integritätstests prüfen automatisch, dass die Hinweise die KPI wirklich freischalten und das Beispiel sie berechnet.

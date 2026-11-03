@@ -62,7 +62,7 @@ function mapDef(x: number | undefined, f: (x: number) => number) {
 }
 
 export function boundsError(v: Variable, value: number): string | undefined {
-  if (v.min !== undefined && value < v.min) return `${v.label} can't be less than ${v.min}.`
-  if (v.max !== undefined && value > v.max) return `${v.label} can't exceed ${v.max}${v.unit === 'percent' ? '%' : ''}.`
+  if (v.min !== undefined && value < v.min) return `${v.label} darf nicht kleiner als ${v.min} sein.`
+  if (v.max !== undefined && value > v.max) return `${v.label} darf nicht größer als ${v.max}${v.unit === 'percent' ? '\u00a0%' : ''} sein.`
   return undefined
 }

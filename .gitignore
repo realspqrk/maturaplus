@@ -27,3 +27,6 @@ test-results
 playwright-report
 screenshots
 .e2e
+
+# one-file app build output (the result is committed in app/)
+.app-build

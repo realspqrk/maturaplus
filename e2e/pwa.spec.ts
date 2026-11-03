@@ -13,7 +13,7 @@ async function waitForOfflineReady(page: Page) {
     await navigator.serviceWorker.ready
   })
   if (!(await page.evaluate(() => !!navigator.serviceWorker.controller))) await page.reload()
-  await expect(page.getByText('Works offline', { exact: true })).toBeAttached() // badge is hidden on narrow screens
+  await expect(page.getByText('Funktioniert offline', { exact: true })).toBeAttached() // badge is hidden on narrow screens
 }
 
 test('web app manifest makes the app installable', async ({ page, request }) => {
@@ -23,7 +23,7 @@ test('web app manifest makes the app installable', async ({ page, request }) => 
   const res = await request.get(href!)
   expect(res.ok()).toBe(true)
   const m = await res.json()
-  expect(m).toMatchObject({ name: 'Marketing KPI Calculator', short_name: 'KPI Calc', display: 'standalone' })
+  expect(m).toMatchObject({ name: 'Marketing-KPI-Rechner', short_name: 'KPI-Rechner', display: 'standalone' })
   expect(m.start_url).toBeTruthy()
   const sizes = m.icons.map((i: { sizes: string }) => i.sizes)
   expect(sizes).toEqual(expect.arrayContaining(['192x192', '512x512']))
@@ -45,15 +45,15 @@ test.describe('service worker', () => {
     await page.reload()
     await expect(page.getByRole('heading', { level: 2, name: 'Online' })).toBeVisible()
     await page.goto('/#/ooh')
-    await fill(page, { 'Media spend': '10000', 'Weekly contacts': '500000', Weeks: '2' })
-    await expect(card(page, 'Cost per 1,000 contacts')).toContainText('€10.00')
+    await fill(page, { Mediabudget: '10000', 'Kontakte pro Woche': '500000', Wochen: '2' })
+    await expect(card(page, 'TKP (Kosten pro 1.000 Kontakte)')).toContainText('10,00 €')
     const download = page.waitForEvent('download')
-    await page.getByRole('button', { name: /export csv/i }).click()
+    await page.getByRole('button', { name: /csv exportieren/i }).click()
     expect((await download).suggestedFilename()).toMatch(/^kpi-ooh-.*\.csv$/)
     // a brand-new tab in the same (offline) browser profile also starts
     const second = await context.newPage()
     await second.goto('/#/directMail')
-    await expect(second.getByRole('heading', { level: 2, name: 'Direct mail' })).toBeVisible()
+    await expect(second.getByRole('heading', { level: 2, name: 'Mailing' })).toBeVisible()
     await context.setOffline(false)
   })
 })
@@ -86,43 +86,43 @@ test.describe('app update (version A → B)', () => {
       await page.goto(server.url)
       await waitForOfflineReady(page)
       await expect(page.getByText('Version e2e-a')).toBeVisible()
-      await field(page, 'Media spend').fill('1000')
-      await field(page, 'Media spend').blur()
+      await field(page, 'Mediabudget').fill('1000')
+      await field(page, 'Mediabudget').blur()
 
       const other = await context.newPage()
       await other.goto(server.url)
       await expect(other.getByText('Version e2e-a')).toBeVisible()
-      await field(other, 'Media spend').fill('2222')
-      await field(other, 'Media spend').blur()
+      await field(other, 'Mediabudget').fill('2222')
+      await field(other, 'Mediabudget').blur()
 
       // deploy B and let the browser discover it
       cpSync(join(root, 'b'), live, { recursive: true, force: true })
       await page.evaluate(async () => {
         await (await navigator.serviceWorker.getRegistration())!.update()
       })
-      await expect(page.getByText(/new version is available/i)).toBeVisible()
-      await expect(other.getByText(/new version is available/i)).toBeVisible()
+      await expect(page.getByText(/neue version ist verfügbar/i)).toBeVisible()
+      await expect(other.getByText(/neue version ist verfügbar/i)).toBeVisible()
 
       // nothing happens on its own
       await page.waitForTimeout(1500)
       await expect(page.getByText('Version e2e-a')).toBeVisible()
-      await expect(field(page, 'Media spend')).toHaveValue('1,000')
+      await expect(field(page, 'Mediabudget')).toHaveValue('1.000')
 
       // "Later" in the other window keeps everything
-      await other.getByRole('button', { name: 'Later' }).click()
-      await expect(other.getByText(/new version is available/i)).toBeHidden()
+      await other.getByRole('button', { name: 'Später' }).click()
+      await expect(other.getByText(/neue version ist verfügbar/i)).toBeHidden()
 
       // accept in the first window → it reloads into B, inputs cleared
-      await Promise.all([page.waitForEvent('load'), page.getByRole('button', { name: /reload and update/i }).click()])
+      await Promise.all([page.waitForEvent('load'), page.getByRole('button', { name: /neu laden und aktualisieren/i }).click()])
       await expect(page.getByText('Version e2e-b')).toBeVisible()
-      await expect(field(page, 'Media spend')).toHaveValue('')
+      await expect(field(page, 'Mediabudget')).toHaveValue('')
 
       // the other window was NOT reloaded: still A, inputs intact, informed instead
-      await expect(other.getByText(/installed from another window/i)).toBeVisible()
+      await expect(other.getByText(/in einem anderen fenster wurde eine neue version installiert/i)).toBeVisible()
       await expect(other.getByText('Version e2e-a')).toBeVisible()
-      await expect(field(other, 'Media spend')).toHaveValue('2,222')
+      await expect(field(other, 'Mediabudget')).toHaveValue('2.222')
       await expect(other.getByRole('heading', { level: 2, name: 'Online' })).toBeVisible()
-      await other.getByRole('button', { name: /reload now/i }).click()
+      await other.getByRole('button', { name: /jetzt neu laden/i }).click()
       await expect(other.getByText('Version e2e-b')).toBeVisible()
     } finally {
       await server.close()

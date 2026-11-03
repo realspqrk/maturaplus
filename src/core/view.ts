@@ -45,7 +45,7 @@ export function buildView(category: Category, inputs: Record<string, number>): C
 
   const conflicts = solution.conflicts.map((c) => {
     const unit = variables[c.output].unit
-    return `${labelFor(category, c.output)} is ${formatValue(c.actual, unit)}, but ${renderFormula(category, c.formula).split(' = ')[1]} gives ${formatValue(c.expected, unit)}.`
+    return `${labelFor(category, c.output)} ist ${formatValue(c.actual, unit)}, aber ${renderFormula(category, c.formula).split(' = ')[1]} ergibt ${formatValue(c.expected, unit)}.`
   })
 
   return {

@@ -19,38 +19,38 @@ export function ResultsPanel({ category, view, onUnlock, onExportCsv }: Props) {
     <section id="results" tabIndex={-1} aria-labelledby="results-title" className="flex scroll-mt-24 flex-col gap-5 outline-none">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 id="results-title" className="text-lg font-semibold">Results</h2>
+          <h2 id="results-title" className="text-lg font-semibold">Ergebnisse</h2>
           <div className="mt-1 flex items-center gap-3">
             <Progress value={view.unlocked} max={view.total} />
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {view.unlocked} of {view.total} KPIs available
+            <p className="text-sm text-slate-600">
+              {view.unlocked} von {view.total} KPIs verfügbar
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
-          <ToolbarButton icon={Download} onClick={onExportCsv}>Export CSV</ToolbarButton>
-          <ToolbarButton icon={Printer} onClick={() => window.print()}>Print / Save as PDF</ToolbarButton>
+          <ToolbarButton icon={Download} onClick={onExportCsv}>CSV exportieren</ToolbarButton>
+          <ToolbarButton icon={Printer} onClick={() => window.print()}>Drucken / Als PDF speichern</ToolbarButton>
         </div>
       </div>
       <LiveStatus view={view} />
 
       {view.conflicts.length > 0 && (
-        <div role="alert" className="flex gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+        <div role="alert" className="flex gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950">
           <TriangleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
           <div>
-            <p className="font-semibold">Your numbers don't add up</p>
+            <p className="font-semibold">Deine Zahlen passen nicht zusammen</p>
             <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">
               {view.conflicts.map((c) => <li key={c}>{c}</li>)}
             </ul>
-            <p className="mt-2 text-sm">Fix or clear one of the highlighted inputs. Results based on them are marked as conflicting.</p>
+            <p className="mt-2 text-sm">Korrigiere oder leere eines der markierten Felder. Ergebnisse, die darauf beruhen, sind als Konflikt markiert.</p>
           </div>
         </div>
       )}
       {invalid.length > 0 && (
-        <div className="flex gap-3 rounded-2xl border border-red-300 bg-red-50 p-4 text-red-950 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-100">
+        <div className="flex gap-3 rounded-2xl border border-red-300 bg-red-50 p-4 text-red-950">
           <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
           <ul className="space-y-0.5 text-sm">
-            {invalid.map(([id, msg]) => <li key={id}>{msg} Check the inputs it's calculated from.</li>)}
+            {invalid.map(([id, msg]) => <li key={id}>{msg} Prüfe die Eingaben, aus denen der Wert berechnet wird.</li>)}
           </ul>
         </div>
       )}
@@ -59,7 +59,7 @@ export function ResultsPanel({ category, view, onUnlock, onExportCsv }: Props) {
 
       {category.kpiGroups.map((g) => (
         <div key={g.title} className="break-inside-avoid-page">
-          <h3 className="mb-2 text-xs font-semibold tracking-wider text-slate-600 uppercase break-after-avoid dark:text-slate-400">{g.title}</h3>
+          <h3 className="mb-2 text-xs font-semibold tracking-wider text-slate-600 uppercase break-after-avoid">{g.title}</h3>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 print:grid-cols-3">
             {g.kpis.map((id) => (
               <KpiCard key={id} category={category} kpi={view.kpis[id]} view={view} onUnlock={onUnlock} />
@@ -83,21 +83,21 @@ function Verdict({ view }: { view: CategoryView }) {
     <div
       className={`flex items-start gap-3 rounded-2xl border p-4 ${
         at
-          ? 'border-slate-200 bg-slate-100 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100'
+          ? 'border-slate-200 bg-slate-100 text-slate-900'
           : above
-          ? 'border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100'
-          : 'border-red-200 bg-red-50 text-red-950 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100'
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-950'
+          : 'border-red-200 bg-red-50 text-red-950'
       }`}
     >
       <Icon aria-hidden className="mt-0.5 size-5 shrink-0" />
       <p className="text-sm">
-        <strong className="font-semibold">{at ? 'At break-even' : above ? 'Above break-even' : 'Below break-even'}:</strong>{' '}
-        ROAS {formatValue(roas.value, 'ratio')} vs. break-even {formatValue(be.value, 'ratio')}.{' '}
+        <strong className="font-semibold">{at ? 'Genau am Break-even' : above ? 'Über dem Break-even' : 'Unter dem Break-even'}:</strong>{' '}
+        ROAS {formatValue(roas.value, 'ratio')} gegenüber Break-even {formatValue(be.value, 'ratio')}.{' '}
         {at
-          ? 'The contribution exactly covers the media spend.'
+          ? 'Der Deckungsbeitrag deckt die Mediakosten genau.'
           : above
-          ? 'The campaign pays for itself at your margin.'
-          : 'At your margin, the revenue does not cover the media spend.'}
+          ? 'Bei deiner Marge macht sich die Kampagne bezahlt.'
+          : 'Bei deiner Marge deckt der Umsatz die Mediakosten nicht.'}
       </p>
     </div>
   )
@@ -105,8 +105,8 @@ function Verdict({ view }: { view: CategoryView }) {
 
 function Progress({ value, max }: { value: number; max: number }) {
   return (
-    <div aria-hidden className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 print:hidden">
-      <div className="h-full rounded-full bg-accent-600 transition-[width] duration-200 motion-reduce:transition-none dark:bg-accent-500" style={{ width: `${(value / max) * 100}%` }} />
+    <div aria-hidden className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200 print:hidden">
+      <div className="h-full rounded-full bg-accent-600 transition-[width] duration-200 motion-reduce:transition-none" style={{ width: `${(value / max) * 100}%` }} />
     </div>
   )
 }
@@ -115,7 +115,7 @@ function Progress({ value, max }: { value: number; max: number }) {
 function LiveStatus({ view }: { view: CategoryView }) {
   const [msg, setMsg] = useState('')
   const n = view.conflicts.length
-  const text = `Results updated: ${view.unlocked} KPIs calculated${n ? `, ${n} conflict${n > 1 ? 's' : ''}` : ''}.`
+  const text = `Ergebnisse aktualisiert: ${view.unlocked} KPIs berechnet${n ? `, ${n} ${n > 1 ? 'Konflikte' : 'Konflikt'}` : ''}.`
   useEffect(() => {
     // an identical summary after a value change must still mutate the region to be announced
     const t = setTimeout(() => setMsg((m) => (m === text ? `${text} ` : text)), 800)
@@ -125,9 +125,9 @@ function LiveStatus({ view }: { view: CategoryView }) {
 }
 
 const STATE_BADGE = {
-  derived: { text: 'Calculated', cls: 'bg-accent-50 text-accent-700 dark:bg-accent-500/15 dark:text-accent-100' },
-  entered: { text: 'Entered', cls: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200' },
-  conflict: { text: 'Conflict', cls: 'bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-100' },
+  derived: { text: 'Berechnet', cls: 'bg-accent-50 text-accent-700' },
+  entered: { text: 'Eingegeben', cls: 'bg-slate-100 text-slate-700' },
+  conflict: { text: 'Konflikt', cls: 'bg-amber-100 text-amber-900' },
 }
 
 function KpiCard({ category, kpi, view, onUnlock }: {
@@ -142,20 +142,20 @@ function KpiCard({ category, kpi, view, onUnlock }: {
 
   if (kpi.state === 'locked') {
     return (
-      <article aria-labelledby={titleId} className="flex flex-col gap-1 rounded-2xl border border-dashed border-slate-300 px-4 py-3 print:hidden dark:border-slate-700">
+      <article aria-labelledby={titleId} className="flex flex-col gap-1 rounded-2xl border border-dashed border-slate-300 px-4 py-3 print:hidden">
         <div className="flex items-center justify-between gap-2">
-          <h4 id={titleId} className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</h4>
+          <h4 id={titleId} className="text-sm font-medium text-slate-700">{label}</h4>
           <Lock aria-hidden className="size-3.5 text-slate-400" />
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Add{' '}
-          {kpi.missing.length === 0 ? 'valid inputs' : kpi.missing.map((id, i) => (
+        <p className="text-sm text-slate-600">
+          Ergänze{' '}
+          {kpi.missing.length === 0 ? 'gültige Eingaben' : kpi.missing.map((id, i) => (
             <span key={id}>
-              {i > 0 && (i === kpi.missing.length - 1 ? ' and ' : ', ')}
+              {i > 0 && (i === kpi.missing.length - 1 ? ' und ' : ', ')}
               <button
                 type="button"
                 onClick={() => onUnlock(id)}
-                className="inline-flex items-center gap-0.5 rounded-md font-medium text-accent-700 underline decoration-accent-500/40 underline-offset-2 hover:decoration-accent-600 focus-visible:outline-2 focus-visible:outline-accent-500 dark:text-accent-100 dark:decoration-accent-100/50"
+                className="inline-flex items-center gap-0.5 rounded-md font-medium text-accent-700 underline decoration-accent-500/40 underline-offset-2 hover:decoration-accent-600 focus-visible:outline-2 focus-visible:outline-accent-500"
               >
                 <Plus aria-hidden className="size-3.5" />
                 {labelFor(category, id)}
@@ -163,7 +163,7 @@ function KpiCard({ category, kpi, view, onUnlock }: {
             </span>
           ))}
         </p>
-        <Explainer summary="About this KPI" help={v.help} />
+        <Explainer summary="Über diese KPI" help={v.help} />
       </article>
     )
   }
@@ -174,20 +174,20 @@ function KpiCard({ category, kpi, view, onUnlock }: {
   return (
     <article
       aria-labelledby={titleId}
-      className={`flex flex-col gap-1 rounded-2xl border bg-white px-4 py-3.5 shadow-xs break-inside-avoid dark:bg-slate-900 ${
-        conflict ? 'border-amber-400 dark:border-amber-500/60' : 'border-slate-200 dark:border-slate-800'
+      className={`flex flex-col gap-1 rounded-2xl border bg-white px-4 py-3.5 shadow-xs break-inside-avoid ${
+        conflict ? 'border-amber-400' : 'border-slate-200'
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <h4 id={titleId} className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</h4>
+        <h4 id={titleId} className="text-sm font-medium text-slate-600">{label}</h4>
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}>{badge.text}</span>
       </div>
-      <p className={`text-2xl font-semibold tracking-tight tabular-nums ${negative ? 'text-red-700 dark:text-red-400' : ''}`}>
+      <p className={`text-2xl font-semibold tracking-tight tabular-nums ${negative ? 'text-red-700' : ''}`}>
         {formatValue(kpi.value!, v.unit)}
-        {negative && <span className="ml-2 align-middle text-xs font-medium">loss</span>}
+        {negative && <span className="ml-2 align-middle text-xs font-medium">Verlust</span>}
       </p>
       <Explainer
-        summary={kpi.formula ? "How it's calculated" : 'About this KPI'}
+        summary={kpi.formula ? 'So wird gerechnet' : 'Über diese KPI'}
         help={v.help}
         formula={kpi.formula && renderFormula(category, kpi.formula)}
         from={kpi.state !== 'entered' ? kpi.from.map((id) => `${labelFor(category, id)}: ${formatValue(view.solution.values[id].value, variables[id].unit)}`) : []}
@@ -199,12 +199,12 @@ function KpiCard({ category, kpi, view, onUnlock }: {
 function Explainer({ summary, help, formula, from = [] }: { summary: string; help?: string; formula?: string; from?: string[] }) {
   return (
     <details className="group text-sm print:hidden">
-      <summary className="-mx-1 flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-md px-1 text-xs font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-accent-500 sm:min-h-8 dark:text-slate-400 dark:hover:text-slate-100 [&::-webkit-details-marker]:hidden">
+      <summary className="-mx-1 flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-md px-1 text-xs font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-accent-500 sm:min-h-8 [&::-webkit-details-marker]:hidden">
         <ChevronRight aria-hidden className="size-3.5 transition-transform group-open:rotate-90" /> {summary}
       </summary>
-      <div className="mt-1 space-y-1.5 text-slate-600 dark:text-slate-300">
-        {formula && <p className="rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono text-xs dark:bg-slate-800">{formula}</p>}
-        {from.length > 0 && <p className="text-xs">Using {from.join(' · ')}</p>}
+      <div className="mt-1 space-y-1.5 text-slate-600">
+        {formula && <p className="rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono text-xs">{formula}</p>}
+        {from.length > 0 && <p className="text-xs">Mit {from.join(' · ')}</p>}
         <p>{help}</p>
       </div>
     </details>

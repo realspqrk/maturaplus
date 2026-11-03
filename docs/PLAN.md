@@ -1,5 +1,7 @@
 # Marketing KPI Calculator — Plan (v1)
 
+> **Update (v1.0):** The UI is now German-only (de-DE number format; standard English terms such as ROI, ROAS and CPM are kept) and light mode only, and the app ships as a one-file app (`app/kpi-rechner.html`) with double-click launchers. The language, theme and delivery decisions below are historical.
+
 ## Decisions (confirmed with user)
 - **Delivery:** Installable PWA, fully offline after first load (service worker precaches all assets). No backend, no network calls at runtime.
 - **Locale:** English UI, EUR currency, `en` number formatting (1,234.56 €-style via `Intl.NumberFormat('en-IE', {currency:'EUR'})`).

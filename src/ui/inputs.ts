@@ -16,7 +16,7 @@ export function parseInputs(raw: RawInputs): ParsedInputs {
     if (!text.trim()) continue
     const n = parseNumber(text)
     if (n === undefined) {
-      errors[id] = 'Enter a number, e.g. 1,234.56'
+      errors[id] = 'Gib eine Zahl ein, z. B. 1.234,56'
       continue
     }
     const err = boundsError(variables[id], n)
@@ -31,7 +31,7 @@ export function formatPlain(value: number, unit: Parameters<typeof formatValue>[
   return formatValue(value, unit).replace(/[€%×]/g, '').trim()
 }
 
-const grouped = new Intl.NumberFormat('en-IE', { maximumFractionDigits: 10 })
+const grouped = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 10 })
 
 /** Show a valid entered number with thousands separators; leave anything else as typed. */
 export function formatInput(raw: string): string {
